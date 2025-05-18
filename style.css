@@ -118,6 +118,11 @@ a:hover {
     right: 0.5rem;
 }
 
+.split {
+    will-change: transform;
+    opacity: 0;
+}
+
 /* Title */
 
 .grid-title {
