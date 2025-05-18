@@ -1,4 +1,7 @@
 gsap.registerPlugin(SplitText);
+gsap.registerPlugin(Draggable);
+
+Draggable.create(".skill-card");
 
 document.fonts.ready.then(() => {
     gsap.set(".split", { opacity: 1 });
