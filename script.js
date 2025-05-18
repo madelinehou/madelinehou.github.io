@@ -1,7 +1,11 @@
-gsap.registerPlugin(SplitText);
-gsap.registerPlugin(Draggable);
+gsap.registerPlugin(SplitText, Draggable, InertiaPlugin);
 
-Draggable.create(".skill-card");
+Draggable.create(".skill-card", {
+    inertia: true,
+    bounds: ".main-grid",
+    edgeResistance: 0.2,
+    snap: { x: 1, y: 1 },
+});
 
 document.fonts.ready.then(() => {
     gsap.set(".split", { opacity: 1 });
