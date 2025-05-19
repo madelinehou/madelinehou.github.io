@@ -107,4 +107,15 @@ document.querySelectorAll('.skill-card').forEach(card => {
 
         gsap.to(highlight, { opacity: 0.7, duration: 0.3, ease: 'power1.out' });
     });
+
+    card.addEventListener('touchmove', (e) => {
+        const cardRect = card.getBoundingClientRect();
+        const touch = e.touches[0];
+        gsap.to(highlight, {
+            x: touch.clientX - cardRect.left - (cardRect.width * 0.5),
+            y: touch.clientY - cardRect.top - (cardRect.width * 0.35),
+            duration: 0.2,
+            ease: 'power1.out'
+        });
+    });
 });
