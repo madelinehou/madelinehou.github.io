@@ -47,6 +47,7 @@ Draggable.create(".skill-card", {
     bounds: ".main-grid",
     edgeResistance: 0.2,
     snap: { x: 1, y: 1 },
+    cursor: 'none'
 });
 
 // Circular highlight
@@ -59,7 +60,13 @@ document.querySelectorAll('.skill-card').forEach(card => {
     const colorOptions = ['var(--color-yellow)', 'var(--color-orange)', 'var(--color-blue)'];
     const highlightColor = colorOptions[cardIndex % 3];
 
-    card.addEventListener('mouseenter', (e) => {
+    const highlightShapes = [
+        'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)', // Diamond
+        'polygon(50% 0%, 0% 100%, 100% 100%)', // Triangle
+        'circle(50% at 50% 50%)',
+    ]
+
+    card.addEventListener('mouseenter', () => {
         const cardRect = card.getBoundingClientRect();
         const sizeAdjustment = Math.floor(Math.random() * 30) * (Math.random() > 0.3 ? 1 : -1);
 
@@ -82,5 +89,22 @@ document.querySelectorAll('.skill-card').forEach(card => {
             duration: 0.2,
             ease: 'power1.out'
         });
+    });
+
+    card.addEventListener('touchstart', (e) => {
+        const cardRect = card.getBoundingClientRect();
+        const touch = e.touches[0];
+
+        gsap.set(highlight, {
+            width: cardRect.width * 0.5,
+            height: cardRect.width * 0.5,
+            clipPath: highlightShapes[Math.floor(Math.random() * highlightShapes.length)],
+            backgroundColor: highlightColor,
+            opacity: 0.7,
+            x: touch.clientX - cardRect.left - (cardRect.width * 0.5),
+            y: touch.clientY - cardRect.top - (cardRect.width * 0.35)
+        });
+
+        gsap.to(highlight, { opacity: 0.7, duration: 0.3, ease: 'power1.out' });
     });
 });
