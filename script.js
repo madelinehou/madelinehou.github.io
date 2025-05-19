@@ -1,6 +1,47 @@
-gsap.registerPlugin(SplitText, Draggable, InertiaPlugin);
+gsap.registerPlugin(Draggable, InertiaPlugin, SplitText, ScrambleTextPlugin);
 
-// Click-and-draggable
+// Timeline animations
+const pageLoadTimeline = gsap.timeline();
+const gridLinks = document.querySelector('.grid-links');
+const links = document.querySelectorAll('.grid-links a');
+const originalText = Array.from(links).map(link => link.textContent);
+
+document.fonts.ready.then(() => {
+    gsap.set(".split", { opacity: 1 });
+
+    const splitText = new SplitText(".split", {
+        type: "words,lines",
+        linesClass: "line",
+        autoSplit: true,
+        mask: "lines"
+    });
+
+    // Mask split text
+    pageLoadTimeline.from(splitText.lines, {
+        duration: 1.5,
+        yPercent: 100,
+        opacity: 0,
+        stagger: 0.15,
+        ease: "expo.out"
+    });
+
+    // Text scramble
+    pageLoadTimeline.add(() => {
+        links.forEach((link, index) => {
+            gsap.to(link, {
+                duration: 0.7,
+                scrambleText: {
+                    text: originalText[index],
+                    chars: originalText[index],
+                    speed: 0.2,
+                    revealDelay: 0.1
+                }
+            });
+        });
+    });
+});
+
+// Click-and-drag
 Draggable.create(".skill-card", {
     inertia: true,
     bounds: ".main-grid",
@@ -8,39 +49,18 @@ Draggable.create(".skill-card", {
     snap: { x: 1, y: 1 },
 });
 
-// Mask split text
-document.fonts.ready.then(() => {
-    gsap.set(".split", { opacity: 1 });
-
-    SplitText.create(".split", {
-        type: "words,lines",
-        linesClass: "line",
-        autoSplit: true,
-        mask: "lines",
-        onSplit: (self) => {
-            return gsap.from(self.lines, {
-                duration: 1.5,
-                yPercent: 100,
-                opacity: 0,
-                stagger: 0.15,
-                ease: "expo.out",
-            });
-        }
-    });
-});
-
-// Circular highlight on hover
+// Circular highlight
 document.querySelectorAll('.skill-card').forEach(card => {
     const highlight = document.createElement('span');
     highlight.className = 'hover-fill';
     card.appendChild(highlight);
 
-    const cardRect = card.getBoundingClientRect();
     const cardIndex = Array.from(card.parentNode.children).indexOf(card);
+    const colorOptions = ['var(--color-yellow)', 'var(--color-orange)', 'var(--color-blue)'];
+    const highlightColor = colorOptions[cardIndex % 3];
 
     card.addEventListener('mouseenter', (e) => {
-        const colorOptions = ['var(--color-yellow)', 'var(--color-orange)', 'var(--color-blue)'];
-        const highlightColor = colorOptions[cardIndex % 3];
+        const cardRect = card.getBoundingClientRect();
 
         gsap.set(highlight, {
             width: cardRect.width * 0.5,
@@ -54,6 +74,7 @@ document.querySelectorAll('.skill-card').forEach(card => {
     });
 
     card.addEventListener('mousemove', (e) => {
+        const cardRect = card.getBoundingClientRect();
         gsap.to(highlight, {
             x: e.clientX - cardRect.left - (cardRect.width * 0.5),
             y: e.clientY - cardRect.top - (cardRect.width * 0.35),
