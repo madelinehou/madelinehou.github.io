@@ -61,10 +61,11 @@ document.querySelectorAll('.skill-card').forEach(card => {
 
     card.addEventListener('mouseenter', (e) => {
         const cardRect = card.getBoundingClientRect();
+        const sizeAdjustment = Math.floor(Math.random() * 30) * (Math.random() > 0.3 ? 1 : -1);
 
         gsap.set(highlight, {
-            width: cardRect.width * 0.5,
-            height: cardRect.width * 0.5,
+            width: cardRect.width * 0.5 + sizeAdjustment,
+            height: cardRect.width * 0.5 + sizeAdjustment,
             borderRadius: '50%',
             backgroundColor: highlightColor,
             opacity: 0.7,
