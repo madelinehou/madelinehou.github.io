@@ -45,9 +45,55 @@ document.fonts.ready.then(() => {
 Draggable.create(".skill-card", {
     inertia: true,
     bounds: ".main-grid",
-    edgeResistance: 0.2,
+    edgeResistance: 0.5,
     snap: { x: 1, y: 1 },
-    cursor: 'none'
+    cursor: 'none',
+    onDrag: function () {
+        const skillText = this.target.querySelector('.skill-text');
+        const skillIcon = this.target.querySelector('.skill-icon');
+
+        if (skillText) {
+            gsap.to(skillText, {
+                x: this.x * -0.1,
+                y: this.y * -0.1,
+                duration: 0.3,
+                ease: "power2.out",
+                overwrite: "auto"
+            });
+        }
+        if (skillIcon) {
+            gsap.to(skillIcon, {
+                x: this.x * -0.1,
+                y: this.y * -0.1,
+                duration: 0.3,
+                ease: "sine.out",
+                overwrite: "auto"
+            });
+        }
+    },
+    onDragEnd: function () {
+        const skillText = this.target.querySelector('.skill-text');
+        const skillIcon = this.target.querySelector('.skill-icon');
+
+        if (skillText) {
+            gsap.to(skillText, {
+                x: 0,
+                y: 0,
+                duration: 0.8,
+                ease: "elastic.out(1, 0.5)",
+                overwrite: "auto"
+            });
+        }
+        if (skillIcon) {
+            gsap.to(skillIcon, {
+                x: 0,
+                y: 0,
+                duration: 1.5,
+                ease: "elastic.out(1, 0.3)",
+                overwrite: "auto"
+            });
+        }
+    }
 });
 
 // Circular highlight

@@ -1,11 +1,11 @@
 :root {
-  --color-page-bg: #ffffff;
-  --color-yellow: #ffcc33;
-  --color-blue: #02ccfe;
-  --color-orange: #ff5e3a;
-  --color-black: #000000;
-  --shadow-light: rgba(0, 0, 0, 0.2);
-  --shadow-medium: rgba(0, 0, 0, 0.3);
+  --color-white: oklch(100% 0 0);
+  --color-yellow: oklch(90% 0.18 80);
+  --color-blue: oklch(80% 0.18 230);
+  --color-orange: oklch(68% 0.18 35);
+  --color-black: oklch(0% 0 0);
+  --shadow-light: oklch(0% 0 0 / 0.2);
+  --shadow-medium: oklch(0% 0 0 / 0.3);
 }
 
 * {
@@ -22,7 +22,7 @@ body {
 }
 
 body {
-  background-color: var(--color-page-bg);
+  background-color: var(--color-white);
   position: relative;
 }
 
@@ -106,7 +106,7 @@ a:hover {
   flex-direction: column;
   justify-content: center;
   width: 100%;
-  color: var(--color-page-bg);
+  color: var(--color-white);
   position: relative;
 }
 
@@ -147,7 +147,7 @@ a:hover {
   flex-direction: column;
   justify-content: center;
   background-color: var(--color-orange);
-  color: var(--color-page-bg);
+  color: var(--color-white);
 }
 
 .interests-paragraph {
@@ -163,7 +163,7 @@ a:hover {
   flex-direction: column;
   align-items: flex-start;
   margin-right: 0.25rem;
-  border-bottom: 2px solid var(--color-page-bg);
+  border-bottom: 2px solid var(--color-white);
 }
 
 .interest-item .subtext {
@@ -172,7 +172,7 @@ a:hover {
   font-size: 0.7em;
   opacity: 0.9;
   font-weight: normal;
-  color: var(--color-page-bg);
+  color: var(--color-white);
 }
 
 /* Experience */
@@ -224,7 +224,7 @@ a:hover {
   padding: 1rem;
   display: flex;
   align-items: center;
-  background-color: var(--color-page-bg);
+  background-color: var(--color-white);
   border: 2px solid var(--color-black);
 }
 
@@ -237,7 +237,7 @@ a:hover {
 }
 
 .skill-card {
-  background-color: var(--color-page-bg);
+  background-color: var(--color-white);
   padding: 1rem;
   border-radius: 0;
   border: 2px solid var(--color-black);
@@ -294,7 +294,7 @@ a:hover {
 
 .grid-links::after {
   content: "MH";
-  background-color: var(--color-page-bg);
+  background-color: var(--color-white);
   position: absolute;
   width: 2rem;
   height: 2rem;
