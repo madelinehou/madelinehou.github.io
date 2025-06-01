@@ -8,6 +8,11 @@
   --shadow-medium: oklch(0% 0 0 / 0.3);
 }
 
+::selection {
+  background-color: var(--color-white);
+  color: var(--color-orange);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -259,7 +264,13 @@ a:hover {
 
 .skill-card:hover {
   transform: translateY(-0.3rem);
-  box-shadow: 0 0.4rem 0.75rem var(--shadow-medium);
+  box-shadow: 0.3rem 0.3rem 0 0 var(--color-black);
+  border: 2px solid var(--color-black);
+  position: relative;
+}
+
+.skill-card.dragging:hover {
+  box-shadow: none !important;
 }
 
 .skill-card .skill-icon,

@@ -48,6 +48,9 @@ Draggable.create(".skill-card", {
     edgeResistance: 0.5,
     snap: { x: 1, y: 1 },
     cursor: 'none',
+    onDragStart: function() {
+        this.target.classList.add('dragging');
+    },
     onDrag: function () {
         const skillText = this.target.querySelector('.skill-text');
         const skillIcon = this.target.querySelector('.skill-icon');
@@ -72,6 +75,7 @@ Draggable.create(".skill-card", {
         }
     },
     onDragEnd: function () {
+        this.target.classList.remove('dragging');
         const skillText = this.target.querySelector('.skill-text');
         const skillIcon = this.target.querySelector('.skill-icon');
 
