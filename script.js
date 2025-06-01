@@ -48,7 +48,7 @@ Draggable.create(".skill-card", {
     edgeResistance: 0.5,
     snap: { x: 1, y: 1 },
     cursor: 'none',
-    onDragStart: function() {
+    onDragStart: function () {
         this.target.classList.add('dragging');
     },
     onDrag: function () {
@@ -110,7 +110,7 @@ document.querySelectorAll('.skill-card').forEach(card => {
     const colorOptions = ['var(--color-yellow)', 'var(--color-orange)', 'var(--color-blue)'];
     const highlightColor = colorOptions[cardIndex % 3];
 
-    const highlightShapes = [
+    const highlightShapesForMobile = [
         'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)', // Diamond
         'polygon(50% 0%, 0% 100%, 100% 100%)', // Triangle
         'circle(50% at 50% 50%)',
@@ -148,7 +148,7 @@ document.querySelectorAll('.skill-card').forEach(card => {
         gsap.set(highlight, {
             width: cardRect.width * 0.5,
             height: cardRect.width * 0.5,
-            clipPath: highlightShapes[Math.floor(Math.random() * highlightShapes.length)],
+            clipPath: highlightShapesForMobile[Math.floor(Math.random() * highlightShapesForMobile.length)],
             backgroundColor: highlightColor,
             opacity: 0.7,
             x: touch.clientX - cardRect.left - (cardRect.width * 0.5),
