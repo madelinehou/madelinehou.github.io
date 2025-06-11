@@ -164,7 +164,7 @@ a:hover {
 
 .name-face-back {
   transform: rotateX(180deg) translateZ(calc(clamp(3rem, 8vw, 8rem) / 2));
-  color: var(--color-orange);
+  color: var(--color-blue);
 }
 
 .name-face-top {
@@ -174,7 +174,7 @@ a:hover {
 
 .name-face-bottom {
   transform: rotateX(-90deg) translateZ(calc(clamp(3rem, 8vw, 8rem) / 2));
-  color: var(--color-blue);
+  color: var(--color-orange);
 }
 
 /* Title */

@@ -8,7 +8,7 @@ gsap.set(nameCubes, { rotationX: 0 });
 gridName.addEventListener('mouseenter', () => {
     gsap.to(nameCubes, {
         rotationX: -90,
-        duration: 0.4,
+        duration: 0.3,
         ease: "power2.inOut",
         stagger: 0.1
     });
@@ -17,7 +17,7 @@ gridName.addEventListener('mouseenter', () => {
 gridName.addEventListener('mouseleave', () => {
     gsap.to(nameCubes, {
         rotationX: 0,
-        duration: 0.4,
+        duration: 0.3,
         ease: "power2.inOut",
         stagger: 0.1
     });
@@ -66,7 +66,7 @@ document.fonts.ready.then(() => {
     // 3D split text
     pageLoadTimeline.to(nameCubes, {
         rotationX: -180,
-        duration: 0.5,
+        duration: 0.6,
         ease: "power2.inOut",
         stagger: 0.1
     }, "-=1.7")
