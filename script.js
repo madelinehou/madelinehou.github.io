@@ -24,10 +24,14 @@ gridName.addEventListener('mouseleave', () => {
 });
 
 gridName.addEventListener('touchstart', () => {
-    gsap.to(nameCubes, {
-        rotationX: "-=180",
-        duration: 0.4,
-        ease: "power2.inOut"
+    nameCubes.forEach(cube => {
+        const currentRotation = gsap.getProperty(cube, "rotationX");
+        const targetRotation = Math.round(currentRotation / 180) * 180 - 180;
+        gsap.to(cube, {
+            rotationX: targetRotation,
+            duration: 0.4,
+            ease: "power2.inOut"
+        });
     });
 });
 
@@ -35,8 +39,10 @@ document.querySelectorAll('.name-cube-container').forEach(container => {
     const cube = container.querySelector('.name-cube');
 
     container.addEventListener('click', () => {
+        const currentRotation = gsap.getProperty(cube, "rotationX");
+        const targetRotation = Math.round(currentRotation / 180) * 180 - 180;
         gsap.to(cube, {
-            rotationX: "-=180",
+            rotationX: targetRotation,
             duration: 0.4,
             ease: "power2.inOut"
         });
