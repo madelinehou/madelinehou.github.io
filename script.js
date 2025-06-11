@@ -63,6 +63,14 @@ document.fonts.ready.then(() => {
         ease: "expo.out"
     });
 
+    // 3D split text
+    pageLoadTimeline.to(nameCubes, {
+        rotationX: -180,
+        duration: 0.5,
+        ease: "power2.inOut",
+        stagger: 0.1
+    }, "-=1.7")
+
     // Text scramble
     pageLoadTimeline.add(() => {
         links.forEach((link, index) => {
