@@ -1,5 +1,48 @@
 gsap.registerPlugin(Draggable, InertiaPlugin, SplitText, ScrambleTextPlugin);
 
+// 3D split text
+const gridName = document.querySelector('.grid-name');
+const nameCubes = document.querySelectorAll('.name-cube');
+gsap.set(nameCubes, { rotationX: 0 });
+
+gridName.addEventListener('mouseenter', () => {
+    gsap.to(nameCubes, {
+        rotationX: -90,
+        duration: 0.4,
+        ease: "power2.inOut",
+        stagger: 0.1
+    });
+});
+
+gridName.addEventListener('mouseleave', () => {
+    gsap.to(nameCubes, {
+        rotationX: 0,
+        duration: 0.4,
+        ease: "power2.inOut",
+        stagger: 0.1
+    });
+});
+
+gridName.addEventListener('touchstart', () => {
+    gsap.to(nameCubes, {
+        rotationX: "-=180",
+        duration: 0.4,
+        ease: "power2.inOut"
+    });
+});
+
+document.querySelectorAll('.name-cube-container').forEach(container => {
+    const cube = container.querySelector('.name-cube');
+
+    container.addEventListener('click', () => {
+        gsap.to(cube, {
+            rotationX: "-=180",
+            duration: 0.4,
+            ease: "power2.inOut"
+        });
+    });
+});
+
 // Timeline animations
 const pageLoadTimeline = gsap.timeline();
 const gridLinks = document.querySelector('.grid-links');

@@ -130,6 +130,53 @@ a:hover {
   opacity: 0;
 }
 
+.name-cube-container {
+  perspective: 1000px;
+  height: clamp(3rem, 8vw, 8rem);
+  cursor: pointer;
+}
+
+.name-cube {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.6s ease-in-out;
+}
+
+.name-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: clamp(0rem, 3vw, 1rem);
+  font-size: clamp(3rem, 8vw, 8rem);
+  font-weight: 700;
+  backface-visibility: hidden;
+  color: var(--color-white);
+}
+
+.name-face-front {
+  transform: translateZ(calc(clamp(3rem, 8vw, 8rem) / 2));
+}
+
+.name-face-back {
+  transform: rotateX(180deg) translateZ(calc(clamp(3rem, 8vw, 8rem) / 2));
+  color: var(--color-orange);
+}
+
+.name-face-top {
+  transform: rotateX(90deg) translateZ(calc(clamp(3rem, 8vw, 8rem) / 2));
+  color: var(--color-yellow);
+}
+
+.name-face-bottom {
+  transform: rotateX(-90deg) translateZ(calc(clamp(3rem, 8vw, 8rem) / 2));
+  color: var(--color-blue);
+}
+
 /* Title */
 
 .grid-title {
