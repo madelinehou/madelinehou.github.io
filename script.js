@@ -23,22 +23,9 @@ gridName.addEventListener('mouseleave', () => {
     });
 });
 
-gridName.addEventListener('touchstart', () => {
-    nameCubes.forEach(cube => {
-        const currentRotation = gsap.getProperty(cube, "rotationX");
-        const targetRotation = Math.round(currentRotation / 180) * 180 - 180;
-        gsap.to(cube, {
-            rotationX: targetRotation,
-            duration: 0.4,
-            ease: "power2.inOut"
-        });
-    });
-});
-
 document.querySelectorAll('.name-cube-container').forEach(container => {
     const cube = container.querySelector('.name-cube');
-
-    container.addEventListener('click', () => {
+    const rotateCube = () => {
         const currentRotation = gsap.getProperty(cube, "rotationX");
         const targetRotation = Math.round(currentRotation / 180) * 180 - 180;
         gsap.to(cube, {
@@ -46,7 +33,9 @@ document.querySelectorAll('.name-cube-container').forEach(container => {
             duration: 0.4,
             ease: "power2.inOut"
         });
-    });
+    };
+    container.addEventListener('click', rotateCube);
+    container.addEventListener('touchstart', rotateCube);
 });
 
 // Timeline animations
