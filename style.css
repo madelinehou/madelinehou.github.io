@@ -259,6 +259,18 @@ a:hover {
   }
 }
 
+.gua-bao-confetti {
+  position: fixed;
+  pointer-events: none;
+  will-change: transform, opacity;
+  z-index: 9999;
+}
+
+.gua-bao-confetti img {
+  object-fit: contain;
+  display: block;
+}
+
 /* Experience */
 
 .grid-experience {

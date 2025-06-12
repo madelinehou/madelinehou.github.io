@@ -1,4 +1,4 @@
-gsap.registerPlugin(Draggable, InertiaPlugin, SplitText, ScrambleTextPlugin);
+gsap.registerPlugin(Draggable, InertiaPlugin, SplitText, ScrambleTextPlugin, Physics2DPlugin);
 
 // 3D split text
 const gridName = document.querySelector('.grid-name');
@@ -38,7 +38,7 @@ document.querySelectorAll('.name-cube-container').forEach(container => {
     container.addEventListener('touchstart', rotateCube);
 });
 
-// Timeline animations
+// Timeline
 const pageLoadTimeline = gsap.timeline();
 const gridLinks = document.querySelector('.grid-links');
 const links = document.querySelectorAll('.grid-links a');
@@ -215,3 +215,55 @@ document.querySelectorAll('.skill-card').forEach(card => {
         });
     });
 });
+
+// Physics2D Confetti
+function initGuaBaoConfetti() {
+    const guaBaoText = document.querySelector('.gua-bao-text');
+    if (!guaBaoText) return;
+
+    guaBaoText.addEventListener('click', (event) => {
+        const confettiCount = gsap.utils.random(12, 25, 1);
+
+        for (let i = 0; i < confettiCount; i++) {
+            const confetti = document.createElement('div');
+            confetti.classList.add('gua-bao-confetti');
+
+            const img = document.createElement('img');
+            img.src = 'static/gua-bao.png';
+            img.alt = 'gua bao';
+            confetti.appendChild(img);
+            document.body.appendChild(confetti);
+
+            gsap.set(confetti, {
+                position: 'fixed',
+                top: event.clientY - 100,
+                left: event.clientX - 100,
+                scale: 0,
+                rotation: gsap.utils.random(0, 360),
+                zIndex: 9999,
+                pointerEvents: 'none'
+            });
+
+            gsap.timeline({
+                onComplete: () => confetti.remove()
+            })
+                .to(confetti, {
+                    scale: gsap.utils.random(0.4, 1),
+                    duration: 0.2, // Quick pop-in
+                    ease: "back.out(2)"
+                })
+                .to(confetti, {
+                    duration: 2.5,
+                    physics2D: {
+                        velocity: gsap.utils.random(300, 800),
+                        angle: gsap.utils.random(0, 360),
+                        gravity: 1200
+                    },
+                    rotation: `+=${gsap.utils.random(360, 720)}`, // Additional rotation during flight
+                    autoAlpha: 0, // Fade out towards the end
+                    ease: "none"
+                }, "<"); // Start together with the previous tween
+        }
+    });
+}
+initGuaBaoConfetti();
