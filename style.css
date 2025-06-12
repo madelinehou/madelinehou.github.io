@@ -267,6 +267,8 @@ a:hover {
 }
 
 .gua-bao-confetti img {
+  width: 14rem;
+  height: 14rem;
   object-fit: contain;
   display: block;
 }
