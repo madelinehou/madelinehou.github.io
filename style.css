@@ -227,6 +227,38 @@ a:hover {
   color: var(--color-white);
 }
 
+.gua-bao-text {
+  position: relative;
+  color: var(--color-white);
+  transition: color 0.3s ease;
+  cursor: pointer;
+}
+
+.gua-bao-text:hover {
+  background: linear-gradient(
+    90deg,
+    var(--color-white) 0%,
+    var(--color-yellow) 25%,
+    var(--color-blue) 50%,
+    var(--color-orange) 75%,
+    var(--color-white) 100%
+  );
+  background-size: 200% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-slide 2s ease-in-out infinite;
+}
+
+@keyframes gradient-slide {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
 /* Experience */
 
 .grid-experience {
