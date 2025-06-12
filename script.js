@@ -56,7 +56,7 @@ document.fonts.ready.then(() => {
 
     // Mask split text
     pageLoadTimeline.from(splitText.lines, {
-        duration: 1.5,
+        duration: 1.4,
         yPercent: 100,
         opacity: 0,
         stagger: 0.15,
@@ -68,8 +68,8 @@ document.fonts.ready.then(() => {
         rotationX: -180,
         duration: 0.6,
         ease: "power2.inOut",
-        stagger: 0.1
-    }, "-=1.7")
+        stagger: 0.15
+    }, "-=1.4")
 
     // Text scramble
     pageLoadTimeline.add(() => {
