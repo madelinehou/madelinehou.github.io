@@ -394,6 +394,31 @@ a:hover {
   position: relative;
 }
 
+.grid-links a {
+  position: relative;
+  text-decoration: none;
+  color: var(--color-orange);
+}
+
+.grid-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 0.7rem;
+  background-color: var(--color-orange);
+  transition: width 0.3s ease-in-out;
+}
+
+.grid-links a:hover::after {
+  width: 100%;
+}
+
+.grid-links a:hover {
+  text-decoration: none;
+}
+
 .grid-links::after {
   content: "MH";
   background-color: var(--color-white);
