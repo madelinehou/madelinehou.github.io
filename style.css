@@ -232,6 +232,7 @@ a:hover {
   color: var(--color-white);
   transition: color 0.3s ease;
   cursor: pointer;
+  user-select: none;
 }
 
 .gua-bao-text:hover {
@@ -406,7 +407,7 @@ a:hover {
   bottom: -2px;
   left: 0;
   width: 0;
-  height: 0.7rem;
+  height: clamp(0.2rem, 1.5vw, 1rem);
   background-color: var(--color-orange);
   transition: width 0.3s ease-in-out;
 }
