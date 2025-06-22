@@ -182,11 +182,52 @@ a:hover {
 .grid-title {
   grid-column: 7 / 13;
   grid-row: 1 / 3;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-yellow);
+  overflow: hidden;
+}
+
+.title-bar {
+  background-color: var(--color-black);
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  height: 2.5rem;
+}
+
+.title-bar-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.title-bar-button {
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.title-bar-button.close {
+  background-color: var(--color-orange);
+}
+
+.title-bar-button.minimize {
+  background-color: var(--color-yellow);
+}
+
+.title-bar-button.maximize {
+  background-color: var(--color-blue);
+}
+
+.title-content {
   padding: 1rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  background-color: var(--color-yellow);
+  flex: 1;
 }
 
 /* Interests */
@@ -402,12 +443,12 @@ a:hover {
 }
 
 .grid-links a::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -2px;
   left: 0;
   width: 0;
-  height: clamp(0.2rem, 1.5vw, 1rem);
+  height: clamp(0.2rem, 1.5vw, 0.95rem);
   background-color: var(--color-orange);
   transition: width 0.3s ease-in-out;
 }
