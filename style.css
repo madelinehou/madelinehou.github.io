@@ -187,6 +187,7 @@ a:hover {
   flex-direction: column;
   background-color: var(--color-yellow);
   overflow: hidden;
+  border-radius: 0.5rem;
 }
 
 .title-bar {
@@ -241,6 +242,7 @@ a:hover {
   justify-content: center;
   background-color: var(--color-orange);
   color: var(--color-white);
+  border-radius: 0.5rem;
 }
 
 .interests-paragraph {
@@ -320,7 +322,8 @@ a:hover {
 .grid-experience {
   grid-column: 5 / 13;
   grid-row: 3 / 5;
-  background-color: var(--color-blue);
+  background-color: var(--color-black);
+  color: var(--color-white);
   padding: 1rem;
   display: flex;
   align-items: center;
@@ -353,6 +356,18 @@ a:hover {
   position: absolute;
   left: 0;
   font-weight: bold;
+}
+
+.pill {
+  display: inline-block;
+  background-color: var(--color-blue);
+  color: var(--color-black);
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.5em;
+  font-weight: 700;
+  margin: 0 0.25rem;
+  vertical-align: middle;
 }
 
 /* Skills */
