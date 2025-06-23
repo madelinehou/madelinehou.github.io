@@ -1,43 +1,5 @@
 gsap.registerPlugin(Draggable, InertiaPlugin, SplitText, ScrambleTextPlugin, Physics2DPlugin);
 
-// 3D split text
-const gridName = document.querySelector('.grid-name');
-const nameCubes = document.querySelectorAll('.name-cube');
-gsap.set(nameCubes, { rotationX: 0 });
-
-gridName.addEventListener('mouseenter', () => {
-    gsap.to(nameCubes, {
-        rotationX: -90,
-        duration: 0.3,
-        ease: "power2.inOut",
-        stagger: 0.1
-    });
-});
-
-gridName.addEventListener('mouseleave', () => {
-    gsap.to(nameCubes, {
-        rotationX: 0,
-        duration: 0.3,
-        ease: "power2.inOut",
-        stagger: 0.1
-    });
-});
-
-document.querySelectorAll('.name-cube-container').forEach(container => {
-    const cube = container.querySelector('.name-cube');
-    const rotateCube = () => {
-        const currentRotation = gsap.getProperty(cube, "rotationX");
-        const targetRotation = Math.round(currentRotation / 180) * 180 - 180;
-        gsap.to(cube, {
-            rotationX: targetRotation,
-            duration: 0.4,
-            ease: "power2.inOut"
-        });
-    };
-    container.addEventListener('click', rotateCube);
-    container.addEventListener('touchstart', rotateCube);
-});
-
 // Timeline
 const pageLoadTimeline = gsap.timeline();
 const gridLinks = document.querySelector('.grid-links');
@@ -87,65 +49,50 @@ document.fonts.ready.then(() => {
     });
 });
 
-// Click-and-drag
-Draggable.create(".skill-card", {
-    inertia: true,
-    bounds: ".main-grid",
-    edgeResistance: 0.5,
-    snap: { x: 1, y: 1 },
-    cursor: 'none',
-    onDragStart: function () {
-        this.target.classList.add('dragging');
-    },
-    onDrag: function () {
-        const skillText = this.target.querySelector('.skill-text');
-        const skillIcon = this.target.querySelector('.skill-icon');
+/* ================================
+   NAME SECTION
+   ================================ */
+// 3D split text
+const gridName = document.querySelector('.grid-name');
+const nameCubes = document.querySelectorAll('.name-cube');
+gsap.set(nameCubes, { rotationX: 0 });
 
-        if (skillText) {
-            gsap.to(skillText, {
-                x: this.x * -0.1,
-                y: this.y * -0.1,
-                duration: 0.3,
-                ease: "power2.out",
-                overwrite: "auto"
-            });
-        }
-        if (skillIcon) {
-            gsap.to(skillIcon, {
-                x: this.x * -0.1,
-                y: this.y * -0.1,
-                duration: 0.3,
-                ease: "sine.out",
-                overwrite: "auto"
-            });
-        }
-    },
-    onDragEnd: function () {
-        this.target.classList.remove('dragging');
-        const skillText = this.target.querySelector('.skill-text');
-        const skillIcon = this.target.querySelector('.skill-icon');
-
-        if (skillText) {
-            gsap.to(skillText, {
-                x: 0,
-                y: 0,
-                duration: 0.8,
-                ease: "elastic.out(1, 0.5)",
-                overwrite: "auto"
-            });
-        }
-        if (skillIcon) {
-            gsap.to(skillIcon, {
-                x: 0,
-                y: 0,
-                duration: 1.5,
-                ease: "elastic.out(1, 0.3)",
-                overwrite: "auto"
-            });
-        }
-    }
+gridName.addEventListener('mouseenter', () => {
+    gsap.to(nameCubes, {
+        rotationX: -90,
+        duration: 0.3,
+        ease: "power2.inOut",
+        stagger: 0.1
+    });
 });
 
+gridName.addEventListener('mouseleave', () => {
+    gsap.to(nameCubes, {
+        rotationX: 0,
+        duration: 0.3,
+        ease: "power2.inOut",
+        stagger: 0.1
+    });
+});
+
+document.querySelectorAll('.name-cube-container').forEach(container => {
+    const cube = container.querySelector('.name-cube');
+    const rotateCube = () => {
+        const currentRotation = gsap.getProperty(cube, "rotationX");
+        const targetRotation = Math.round(currentRotation / 180) * 180 - 180;
+        gsap.to(cube, {
+            rotationX: targetRotation,
+            duration: 0.4,
+            ease: "power2.inOut"
+        });
+    };
+    container.addEventListener('click', rotateCube);
+    container.addEventListener('touchstart', rotateCube);
+});
+
+/* ================================
+   INTERESTS SECTION
+   ================================ */
 // Circular highlight
 document.querySelectorAll('.skill-card').forEach(card => {
     const highlight = document.createElement('span');
@@ -155,12 +102,6 @@ document.querySelectorAll('.skill-card').forEach(card => {
     const cardIndex = Array.from(card.parentNode.children).indexOf(card);
     const colorOptions = ['var(--color-yellow)', 'var(--color-orange)', 'var(--color-blue)'];
     const highlightColor = colorOptions[cardIndex % 3];
-
-    const highlightShapesForMobile = [
-        'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)', // Diamond
-        'polygon(50% 0%, 0% 100%, 100% 100%)', // Triangle
-        'circle(50% at 50% 50%)',
-    ]
 
     card.addEventListener('mouseenter', () => {
         const cardRect = card.getBoundingClientRect();
@@ -194,7 +135,7 @@ document.querySelectorAll('.skill-card').forEach(card => {
         gsap.set(highlight, {
             width: cardRect.width * 0.5,
             height: cardRect.width * 0.5,
-            clipPath: highlightShapesForMobile[Math.floor(Math.random() * highlightShapesForMobile.length)],
+            borderRadius: '50%',
             backgroundColor: highlightColor,
             opacity: 0.7,
             x: touch.clientX - cardRect.left - (cardRect.width * 0.5),
@@ -267,3 +208,65 @@ function initGuaBaoConfetti() {
     });
 }
 initGuaBaoConfetti();
+
+/* ================================
+   SKILLS SECTION
+   ================================ */
+// Click-and-drag
+Draggable.create(".skill-card", {
+    inertia: true,
+    bounds: ".main-grid",
+    edgeResistance: 0.5,
+    snap: { x: 1, y: 1 },
+    cursor: 'none',
+    onDragStart: function () {
+        this.target.classList.add('dragging');
+    },
+    onDrag: function () {
+        const skillText = this.target.querySelector('.skill-text');
+        const skillIcon = this.target.querySelector('.skill-icon');
+
+        if (skillText) {
+            gsap.to(skillText, {
+                x: this.x * -0.1,
+                y: this.y * -0.1,
+                duration: 0.3,
+                ease: "power2.out",
+                overwrite: "auto"
+            });
+        }
+        if (skillIcon) {
+            gsap.to(skillIcon, {
+                x: this.x * -0.1,
+                y: this.y * -0.1,
+                duration: 0.3,
+                ease: "sine.out",
+                overwrite: "auto"
+            });
+        }
+    },
+    onDragEnd: function () {
+        this.target.classList.remove('dragging');
+        const skillText = this.target.querySelector('.skill-text');
+        const skillIcon = this.target.querySelector('.skill-icon');
+
+        if (skillText) {
+            gsap.to(skillText, {
+                x: 0,
+                y: 0,
+                duration: 0.8,
+                ease: "elastic.out(1, 0.5)",
+                overwrite: "auto"
+            });
+        }
+        if (skillIcon) {
+            gsap.to(skillIcon, {
+                x: 0,
+                y: 0,
+                duration: 1.5,
+                ease: "elastic.out(1, 0.3)",
+                overwrite: "auto"
+            });
+        }
+    }
+});

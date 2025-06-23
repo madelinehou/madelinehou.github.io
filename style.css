@@ -101,7 +101,9 @@ a:hover {
   margin: 0 auto;
 }
 
-/* Name */
+/* ================================
+   NAME SECTION
+   ================================ */
 
 .grid-name {
   grid-column: 1 / 7;
@@ -177,7 +179,9 @@ a:hover {
   color: var(--color-orange);
 }
 
-/* Title */
+/* ================================
+   TITLE SECTION
+   ================================ */
 
 .grid-title {
   grid-column: 7 / 13;
@@ -231,7 +235,9 @@ a:hover {
   flex: 1;
 }
 
-/* Interests */
+/* ================================
+   INTERESTS SECTION
+   ================================ */
 
 .grid-interests {
   grid-column: 1 / 5;
@@ -276,6 +282,7 @@ a:hover {
   transition: color 0.3s ease;
   cursor: pointer;
   user-select: none;
+  -webkit-user-select: none;
 }
 
 .gua-bao-text:hover {
@@ -317,7 +324,9 @@ a:hover {
   display: block;
 }
 
-/* Experience */
+/* ================================
+   EXPERIENCE SECTION
+   ================================ */
 
 .grid-experience {
   grid-column: 5 / 13;
@@ -370,7 +379,9 @@ a:hover {
   vertical-align: middle;
 }
 
-/* Skills */
+/* ================================
+   SKILLS SECTION
+   ================================ */
 
 .grid-skills {
   grid-column: 1 / 8;
@@ -438,7 +449,9 @@ a:hover {
   font-weight: 600;
 }
 
-/* Links */
+/* ================================
+   LINKS SECTION
+   ================================ */
 
 .grid-links {
   grid-column: 8 / 13;
@@ -492,7 +505,9 @@ a:hover {
   font-size: 1rem;
 }
 
-/* Media Queries */
+/* ================================
+   MEDIA QUERIES
+   ================================ */
 
 @media (max-width: 48rem) {
   .skills-container {
