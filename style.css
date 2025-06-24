@@ -487,6 +487,9 @@ a:hover {
 
 .grid-links a:hover {
   text-decoration: none;
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="30" fill="rgba(255,255,255,0.7)"/><text x="40" y="45" text-anchor="middle" dominant-baseline="central" font-size="35" fill="black" font-weight="900">↗</text></svg>')
+      20 25,
+    pointer;
 }
 
 .grid-links::after {
