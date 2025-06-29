@@ -87,7 +87,7 @@ document.querySelectorAll('.name-cube-container').forEach(container => {
     const cube = container.querySelector('.name-cube');
     const rotateCube = () => {
         const currentRotation = gsap.getProperty(cube, "rotationX");
-        const targetRotation = Math.round(currentRotation / 180) * 180 - 180;
+        const targetRotation = Math.round(currentRotation / 180) * 180 - 180; // multiples of 180, shifted down by 180
         gsap.to(cube, {
             rotationX: targetRotation,
             duration: 0.4,
@@ -113,7 +113,7 @@ document.querySelectorAll('.skill-card').forEach(card => {
 
     card.addEventListener('mouseenter', () => {
         const cardRect = card.getBoundingClientRect();
-        const sizeAdjustment = Math.floor(Math.random() * 30) * (Math.random() > 0.3 ? 1 : -1);
+        const sizeAdjustment = Math.floor(Math.random() * 30) * (Math.random() > 0.3 ? 1 : -1); // -29 to +29
 
         gsap.set(highlight, {
             width: cardRect.width * 0.5 + sizeAdjustment,
@@ -139,10 +139,11 @@ document.querySelectorAll('.skill-card').forEach(card => {
     card.addEventListener('touchstart', (e) => {
         const cardRect = card.getBoundingClientRect();
         const touch = e.touches[0];
+        const sizeAdjustment = Math.floor(Math.random() * 30) * (Math.random() > 0.3 ? 1 : -1); // -29 to +29
 
         gsap.set(highlight, {
-            width: cardRect.width * 0.5,
-            height: cardRect.width * 0.5,
+            width: cardRect.width * 0.7 + sizeAdjustment,
+            height: cardRect.width * 0.7 + sizeAdjustment,
             borderRadius: '50%',
             backgroundColor: highlightColor,
             opacity: 0.7,
