@@ -448,14 +448,17 @@ a:hover {
   position: absolute;
   bottom: -2px;
   left: 0;
-  width: 0;
+  width: 100%;
   height: clamp(0.2rem, 1.5vw, 0.95rem);
   background-color: var(--color-orange);
-  transition: width 0.3s ease-in-out;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease-in-out;
 }
 
 .grid-links a:hover::after {
-  width: 100%;
+  transform: scaleX(1);
+  transform-origin: left;
 }
 
 .grid-links a:hover {
