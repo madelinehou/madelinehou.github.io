@@ -3,6 +3,10 @@
   --color-yellow: oklch(90% 0.18 80);
   --color-blue: oklch(80% 0.18 230);
   --color-orange: oklch(68% 0.18 35);
+  --color-green-light: oklch(95% 0.05 180);
+  --color-green: oklch(45% 0.15 180);
+  --color-green-dark: oklch(22% 0.08 180);
+  --color-purple: oklch(22% 0.08 300);
   --color-black: oklch(20% 0 0);
   --shadow-light: oklch(0% 0 0 / 0.2);
   --shadow-medium: oklch(0% 0 0 / 0.3);
@@ -189,42 +193,10 @@ a:hover {
   padding: 0;
   display: flex;
   flex-direction: column;
-  background-color: var(--color-yellow);
+  background-color: var(--color-green);
+  color: var(--color-green-light);
   overflow: hidden;
-  border-radius: 0.5rem;
-}
-
-.title-bar {
-  background-color: var(--color-black);
-  padding: 0.5rem 1rem;
-  display: flex;
-  align-items: center;
-  height: 2.5rem;
-}
-
-.title-bar-buttons {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.title-bar-button {
-  width: 0.8rem;
-  height: 0.8rem;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.title-bar-button.close {
-  background-color: var(--color-orange);
-}
-
-.title-bar-button.minimize {
-  background-color: var(--color-yellow);
-}
-
-.title-bar-button.maximize {
-  background-color: var(--color-blue);
+  border-radius: 0.5rem 0.5rem 4rem 0.5rem;
 }
 
 .title-content {
@@ -246,9 +218,9 @@ a:hover {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  background-color: var(--color-orange);
-  color: var(--color-white);
-  border-radius: 0.5rem;
+  background-color: var(--color-green-dark);
+  color: var(--color-green-light);
+  border-radius: 0.5rem 4rem 0.5rem 0.5rem;
 }
 
 .interests-paragraph {
@@ -278,7 +250,7 @@ a:hover {
 
 .gua-bao-text {
   position: relative;
-  color: var(--color-white);
+  color: var(--color-green-light);
   transition: color 0.3s ease;
   cursor: pointer;
   user-select: none;
@@ -369,7 +341,7 @@ a:hover {
 
 .pill {
   display: inline-block;
-  background-color: var(--color-blue);
+  background-color: var(--color-green-light);
   color: var(--color-black);
   padding: 0.25rem 0.75rem;
   border-radius: 1rem;
@@ -460,7 +432,8 @@ a:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--color-yellow);
+  background-color: var(--color-purple);
+  color: var(--color-white);
   position: relative;
 }
 
@@ -494,12 +467,12 @@ a:hover {
 
 .grid-links::after {
   content: "MH";
-  background-color: var(--color-white);
+  background-color: oklch(100% 0 0 / 0.5);
   position: absolute;
   width: 2rem;
   height: 2rem;
   border-radius: 50%;
-  border: 2px solid var(--color-black);
+  border: 2px solid var(--color-white);
   bottom: 1rem;
   right: 1rem;
   display: flex;
