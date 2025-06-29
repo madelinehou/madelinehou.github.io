@@ -6,6 +6,9 @@ const gridLinks = document.querySelector('.grid-links');
 const links = document.querySelectorAll('.grid-links a');
 const originalText = Array.from(links).map(link => link.textContent);
 
+const firstNameCube = document.querySelectorAll('.name-cube')[0];
+const lastNameCube = document.querySelectorAll('.name-cube')[1];
+
 document.fonts.ready.then(() => {
     gsap.set(".split", { opacity: 1 });
 
@@ -26,7 +29,7 @@ document.fonts.ready.then(() => {
     });
 
     // 3D split text
-    pageLoadTimeline.to(nameCubes, {
+    pageLoadTimeline.to(firstNameCube, {
         rotationX: -180,
         duration: 0.6,
         ease: "power2.inOut",
@@ -55,11 +58,16 @@ document.fonts.ready.then(() => {
 // 3D split text
 const gridName = document.querySelector('.grid-name');
 const nameCubes = document.querySelectorAll('.name-cube');
-gsap.set(nameCubes, { rotationX: 0 });
 
 gridName.addEventListener('mouseenter', () => {
-    gsap.to(nameCubes, {
+    gsap.to(firstNameCube, {
         rotationX: -90,
+        duration: 0.3,
+        ease: "power2.inOut",
+        stagger: 0.1
+    });
+    gsap.to(lastNameCube, {
+        rotationX: 90,
         duration: 0.3,
         ease: "power2.inOut",
         stagger: 0.1
