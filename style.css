@@ -1,8 +1,86 @@
 :root {
-  --color-bg: #fafafa;
+  --color-bg: #fdf3e3;
+  --color-hero-top: #fef9ef;
   --color-text: #1a1a1a;
   --color-text-muted: #888;
   --color-accent: oklch(68% 0.18 35);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #1a1208;
+    --color-hero-top: #1a1510;
+    --color-text: #e8e8e8;
+    --color-text-muted: #999;
+    --color-accent: oklch(72% 0.18 35);
+  }
+}
+
+[data-theme="light"] {
+  --color-bg: #fdf3e3;
+  --color-hero-top: #fef9ef;
+  --color-text: #1a1a1a;
+  --color-text-muted: #888;
+  --color-accent: oklch(68% 0.18 35);
+}
+
+[data-theme="dark"] {
+  --color-bg: #1a1208;
+  --color-hero-top: #1a1510;
+  --color-text: #e8e8e8;
+  --color-text-muted: #999;
+  --color-accent: oklch(72% 0.18 35);
+}
+
+/* ================================
+   THEME TOGGLE — "o" in Hou
+   ================================ */
+
+.theme-o {
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+  vertical-align: -0.12em;
+  width: 0.75em;
+  height: 0.75em;
+}
+
+.theme-o:hover .theme-icon {
+  color: var(--color-accent);
+}
+
+.theme-icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  color: var(--color-text);
+  stroke: currentColor;
+  fill: none;
+  transition: color 0.4s ease, opacity 0.4s ease, transform 0.4s ease;
+}
+
+/* Default (light): moon visible, sun hidden */
+.icon-moon {
+  opacity: 1;
+  transform: rotate(0deg);
+}
+
+.icon-sun {
+  opacity: 0;
+  transform: rotate(-90deg);
+}
+
+.theme-o.is-sun .icon-moon {
+  opacity: 0;
+  transform: rotate(90deg);
+}
+
+.theme-o.is-sun .icon-sun {
+  opacity: 1;
+  transform: rotate(0deg);
 }
 
 ::selection {
@@ -24,9 +102,10 @@ body {
   font-family: "Montserrat", sans-serif;
   font-weight: 400;
   color: var(--color-text);
-  background-color: var(--color-bg);
+  background: linear-gradient(180deg, var(--color-hero-top) 0%, var(--color-bg) 100vh) no-repeat, var(--color-bg);
   line-height: 1.6;
   overflow-x: hidden;
+  transition: color 0.4s ease, background 0.4s ease;
 }
 
 .container {
@@ -46,7 +125,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(180deg, #fef9ef 0%, var(--color-bg) 100%);
+  background: transparent;
 }
 
 #egg-tart-canvas {
@@ -148,7 +227,7 @@ body {
   font-weight: 700;
   color: var(--color-text);
   text-decoration: none;
-  transition: color 0.2s ease;
+  transition: color 0.4s ease;
 }
 
 .info-link::after {

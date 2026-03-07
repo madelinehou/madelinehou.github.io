@@ -105,6 +105,7 @@ function onPointerDown(e) {
   previousMouseX = pos.x;
   previousMouseY = pos.y;
   canvas.style.cursor = "grabbing";
+  if (e.touches) e.preventDefault();
 }
 
 function onPointerMove(e) {
@@ -116,6 +117,7 @@ function onPointerMove(e) {
   rotationVelocityX = deltaY * 0.003;
   previousMouseX = pos.x;
   previousMouseY = pos.y;
+  if (e.touches) e.preventDefault();
 }
 
 function onPointerUp() {
@@ -128,8 +130,8 @@ canvas.addEventListener("mousemove", onPointerMove);
 canvas.addEventListener("mouseup", onPointerUp);
 canvas.addEventListener("mouseleave", onPointerUp);
 
-canvas.addEventListener("touchstart", onPointerDown, { passive: true });
-canvas.addEventListener("touchmove", onPointerMove, { passive: true });
+canvas.addEventListener("touchstart", onPointerDown, { passive: false });
+canvas.addEventListener("touchmove", onPointerMove, { passive: false });
 canvas.addEventListener("touchend", onPointerUp);
 
 canvas.style.cursor = "grab";
