@@ -1,6 +1,47 @@
 gsap.registerPlugin(ScrollTrigger);
 
 // ================================
+// THEME TOGGLE
+// ================================
+
+const themeToggle = document.getElementById("theme-toggle");
+const html = document.documentElement;
+
+// Initialize from localStorage or system preference
+const savedTheme = localStorage.getItem("theme");
+if (savedTheme) {
+  html.setAttribute("data-theme", savedTheme);
+}
+
+function syncIcon() {
+  const theme = html.getAttribute("data-theme");
+  const isDark = theme === "dark" || (!theme && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  themeToggle.classList.toggle("is-sun", isDark);
+}
+syncIcon();
+
+function toggleTheme() {
+  const current = html.getAttribute("data-theme");
+  const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+  let next;
+  if (!current) {
+    next = systemDark ? "light" : "dark";
+  } else {
+    next = current === "dark" ? "light" : "dark";
+  }
+
+  html.setAttribute("data-theme", next);
+  localStorage.setItem("theme", next);
+  syncIcon();
+}
+
+themeToggle.addEventListener("click", toggleTheme);
+themeToggle.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleTheme(); }
+});
+
+// ================================
 // HERO HINT + SCROLL INDICATOR
 // ================================
 
