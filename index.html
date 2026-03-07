@@ -8,111 +8,46 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap"
       rel="stylesheet"
     />
     <link rel="icon" type="image/png" href="static/initials.png" />
   </head>
   <body>
-    <div class="main-grid">
-      <div class="grid-name">
-        <div class="name-cube-container">
-          <div class="name-cube" data-text="MADELINE">
-            <div class="name-face name-face-front">MADELINE</div>
-            <div class="name-face name-face-back">MADELINE</div>
-            <div class="name-face name-face-top">MADELINE</div>
-            <div class="name-face name-face-bottom">MADELINE</div>
-          </div>
-        </div>
-        <div class="name-cube-container">
-          <div class="name-cube" data-text="HOU">
-            <div class="name-face name-face-front">HOU</div>
-            <div class="name-face name-face-back">HOU</div>
-            <div class="name-face name-face-top">HOU</div>
-            <div class="name-face name-face-bottom">HOU</div>
-          </div>
-        </div>
+    <!-- Hero: 3D Egg Tart -->
+    <section class="hero">
+      <canvas id="egg-tart-canvas"></canvas>
+      <div class="hero-hint">drag to spin</div>
+      <div class="scroll-indicator">
+        <span>scroll</span>
+        <div class="scroll-line"></div>
       </div>
-      <div class="grid-title">
-        <div class="title-content">
-          <h2 class="split">Software Engineer based in California</h2>
-          <h2 class="split">3+ years full-stack experience</h2>
+    </section>
+
+    <!-- Info -->
+    <section class="info">
+      <div class="container">
+        <h1 class="info-name">Madeline Hou</h1>
+
+        <div class="info-links">
+          <a href="https://www.linkedin.com/in/madeline-hou/" class="info-link" target="_blank" rel="noopener">LinkedIn</a>
+          <span class="info-separator">&middot;</span>
+          <a href="https://github.com/madelinehou" class="info-link" target="_blank" rel="noopener">GitHub</a>
         </div>
       </div>
-      <div class="grid-interests">
-        <div class="interests-paragraph">
-          <div class="interest-item">
-            <span>always learning,</span>
-            <span class="subtext">(web dev, ML, devops)</span>
-          </div>
-          <div class="interest-item">
-            <span>creating,</span>
-            <span class="subtext">(side projects)</span>
-          </div>
-          <div class="interest-item">
-            <span>connecting,</span>
-            <span class="subtext">(local meetups, conferences)</span>
-          </div>
-          <div class="interest-item">
-            <span>
-              looking for good <span class="gua-bao-text">gua bao</span>
-            </span>
-            <span class="subtext">(請)</span>
-          </div>
-        </div>
-      </div>
-      <div class="grid-experience">
-        <ul>
-          <li>
-            Delivering responsive web apps backed by robust backend services
-            <span class="pill">UI / UX</span><span class="pill">Automation</span>
-          </li>
-          <li>
-            Working with various teams to rapidly iterate on user-centric,
-            scalable solutions
-          </li>
-          <li>
-            Prototyping and implementing performant features while minimizing
-            technical debt
-          </li>
-        </ul>
-      </div>
-      <div class="grid-skills">
-        <div class="skills-container">
-          <div class="skill-card">
-            <div class="skill-icon">⚛️</div>
-            <div class="skill-text">TypeScript, React, Next.JS</div>
-          </div>
-          <div class="skill-card">
-            <div class="skill-icon">💎</div>
-            <div class="skill-text">Ruby on Rails</div>
-          </div>
-          <div class="skill-card">
-            <div class="skill-icon">🐘</div>
-            <div class="skill-text">SQL, GraphQL, PostgreSQL</div>
-          </div>
-          <div class="skill-card">
-            <div class="skill-icon">🐍</div>
-            <div class="skill-text">Python</div>
-          </div>
-          <div class="skill-card">
-            <div class="skill-icon">🐋</div>
-            <div class="skill-text">Docker, Amazon Web Services</div>
-          </div>
-        </div>
-      </div>
-      <div class="grid-links">
-        <h2>
-          <a href="https://www.linkedin.com/in/madeline-hou/">LinkedIn</a>&&<a href="https://github.com/madelinehou">Github</a>
-        </h2>
-      </div>
-    </div>
+    </section>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+        }
+      }
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/Draggable.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/InertiaPlugin.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrambleTextPlugin.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/SplitText.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/Physics2DPlugin.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+    <script type="module" src="egg-tart.js"></script>
     <script src="script.js"></script>
   </body>
 </html>
