@@ -92,6 +92,9 @@ let rotationVelocityY = 0.005;
 let rotationVelocityX = 0;
 const damping = 0.95;
 
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+
 function getPointerPos(e) {
   if (e.touches && e.touches.length > 0) {
     return { x: e.touches[0].clientX, y: e.touches[0].clientY };
@@ -99,7 +102,17 @@ function getPointerPos(e) {
   return { x: e.clientX, y: e.clientY };
 }
 
+function hitsEggTart(e) {
+  const pos = getPointerPos(e);
+  const rect = canvas.getBoundingClientRect();
+  pointer.x = ((pos.x - rect.left) / rect.width) * 2 - 1;
+  pointer.y = -((pos.y - rect.top) / rect.height) * 2 + 1;
+  raycaster.setFromCamera(pointer, camera);
+  return raycaster.intersectObject(tartGroup, true).length > 0;
+}
+
 function onPointerDown(e) {
+  if (!hitsEggTart(e)) return;
   isDragging = true;
   const pos = getPointerPos(e);
   previousMouseX = pos.x;
@@ -109,7 +122,13 @@ function onPointerDown(e) {
 }
 
 function onPointerMove(e) {
-  if (!isDragging) return;
+  if (!isDragging) {
+    // Update cursor based on hover over egg tart
+    if (!e.touches) {
+      canvas.style.cursor = hitsEggTart(e) ? "grab" : "default";
+    }
+    return;
+  }
   const pos = getPointerPos(e);
   const deltaX = pos.x - previousMouseX;
   const deltaY = pos.y - previousMouseY;
@@ -122,7 +141,7 @@ function onPointerMove(e) {
 
 function onPointerUp() {
   isDragging = false;
-  canvas.style.cursor = "grab";
+  canvas.style.cursor = "default";
 }
 
 canvas.addEventListener("mousedown", onPointerDown);
@@ -133,8 +152,6 @@ canvas.addEventListener("mouseleave", onPointerUp);
 canvas.addEventListener("touchstart", onPointerDown, { passive: false });
 canvas.addEventListener("touchmove", onPointerMove, { passive: false });
 canvas.addEventListener("touchend", onPointerUp);
-
-canvas.style.cursor = "grab";
 
 // ================================
 // RESIZE
