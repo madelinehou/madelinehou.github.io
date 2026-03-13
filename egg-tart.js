@@ -119,13 +119,28 @@ function onPointerDown(e) {
   previousMouseY = pos.y;
   canvas.style.cursor = "grabbing";
   if (e.touches) e.preventDefault();
+
+  // Count every interaction with the egg tart
+  tartTapCount++;
+  clearTimeout(tartTapTimer);
+  tartTapTimer = setTimeout(() => { tartTapCount = 0; }, 3000);
+  if (tartTapCount >= 3) {
+    tartTapCount = 0;
+    window.dispatchEvent(new CustomEvent("egg-tart-secret"));
+  }
 }
+
+let lastCursorCheck = 0;
 
 function onPointerMove(e) {
   if (!isDragging) {
-    // Update cursor based on hover over egg tart
+    // Throttle cursor raycasts to avoid interrupting animation
     if (!e.touches) {
-      canvas.style.cursor = hitsEggTart(e) ? "grab" : "default";
+      const now = Date.now();
+      if (now - lastCursorCheck > 150) {
+        lastCursorCheck = now;
+        canvas.style.cursor = hitsEggTart(e) ? "grab" : "default";
+      }
     }
     return;
   }
@@ -143,6 +158,10 @@ function onPointerUp() {
   isDragging = false;
   canvas.style.cursor = "default";
 }
+
+// Track interactions with the egg tart (for easter egg)
+let tartTapCount = 0;
+let tartTapTimer = null;
 
 canvas.addEventListener("mousedown", onPointerDown);
 canvas.addEventListener("mousemove", onPointerMove);
