@@ -38,11 +38,36 @@
       </div>
     </section>
 
+    <!-- Chat Widget -->
+    <button class="chat-fab" id="chat-fab" aria-label="Chat with Egg Tart">
+      <span class="chat-fab-spinner" id="chat-fab-spinner"></span>
+      <span class="chat-fab-emoji" id="chat-fab-emoji">🥚</span>
+    </button>
+
+    <div class="chat-window" id="chat-window">
+      <div class="chat-header">
+        <div class="chat-header-avatar">🥚</div>
+        <div class="chat-header-name">Egg Tart</div>
+        <button class="chat-reset" id="chat-reset" aria-label="Reset chat">⟳</button>
+        <button class="chat-close" id="chat-close" aria-label="Close chat">✕</button>
+      </div>
+      <div class="chat-progress" id="chat-progress">
+        <div class="chat-progress-track"><div class="chat-progress-bar" id="chat-progress-bar"></div></div>
+        <div class="chat-progress-text" id="chat-progress-text"></div>
+      </div>
+      <div class="chat-messages" id="chat-messages"></div>
+      <div class="chat-input-row">
+        <input class="chat-input" id="chat-input" type="text" placeholder="Message" autocomplete="off" />
+        <button class="chat-send" id="chat-send" aria-label="Send">↑</button>
+      </div>
+    </div>
+
     <script type="importmap">
       {
         "imports": {
           "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
-          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/",
+          "@huggingface/transformers": "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3/dist/transformers.min.js"
         }
       }
     </script>
@@ -50,5 +75,6 @@
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
     <script type="module" src="egg-tart.js"></script>
     <script src="script.js"></script>
+    <script src="chat.js"></script>
   </body>
 </html>
