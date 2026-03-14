@@ -62,6 +62,10 @@ chatReset.addEventListener("click", () => {
   generating = false;
   streamBubble = null;
   streamText = "";
+  chatReset.classList.remove("spin");
+  void chatReset.offsetWidth;
+  chatReset.classList.add("spin");
+  chatReset.addEventListener("animationend", () => chatReset.classList.remove("spin"), { once: true });
 });
 
 // Send message
@@ -73,12 +77,19 @@ chatInput.addEventListener("keydown", (e) => {
   }
 });
 
+// Auto-resize textarea
+chatInput.addEventListener("input", () => {
+  chatInput.style.height = "auto";
+  chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + "px";
+});
+
 function sendMessage() {
   const text = chatInput.value.trim();
   if (!text || generating) return;
 
   appendMessage("user", text);
   chatInput.value = "";
+  chatInput.style.height = "auto";
 
   conversationHistory.push({ role: "user", content: text });
 
@@ -155,9 +166,17 @@ function initWorker() {
       streamBubble.textContent = streamText;
       scrollToBottom();
     } else if (type === "gen_done") {
-      generating = false;
-      conversationHistory.push({ role: "assistant", content: e.data.text });
-      streamBubble = null;
+      if (e.data.truncated) {
+        const continuation = [
+          ...conversationHistory,
+          { role: "assistant", content: streamText },
+        ];
+        worker.postMessage({ type: "generate", messages: continuation, isContinuation: true });
+      } else {
+        generating = false;
+        conversationHistory.push({ role: "assistant", content: streamText });
+        streamBubble = null;
+      }
     } else if (type === "error") {
       hideTypingIndicator();
       generating = false;
