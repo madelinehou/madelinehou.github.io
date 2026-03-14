@@ -259,6 +259,171 @@ body {
 }
 
 /* ================================
+   COMMAND BAR TRIGGER BUTTON
+   ================================ */
+
+.cmd-trigger {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid color-mix(in srgb, var(--color-text) 15%, transparent);
+  border-radius: 0.5rem;
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  opacity: 0;
+  transition: opacity 0.6s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.cmd-trigger.revealed {
+  opacity: 1;
+}
+
+.cmd-trigger:hover {
+  color: var(--color-text);
+  border-color: color-mix(in srgb, var(--color-text) 30%, transparent);
+}
+
+.cmd-trigger-slash {
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ================================
+   COMMAND BAR (Cmd+K)
+   ================================ */
+
+.cmd-bar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 2000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.cmd-bar-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.cmd-bar {
+  position: fixed;
+  top: 28%;
+  left: 50%;
+  transform: translateX(-50%) scale(0.95);
+  width: min(28rem, calc(100vw - 2rem));
+  background: var(--color-bg);
+  border: 1px solid color-mix(in srgb, var(--color-text) 15%, transparent);
+  border-radius: 1rem;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25);
+  z-index: 2001;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.cmd-bar.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) scale(1);
+}
+
+.cmd-bar-input {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+  background: transparent;
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.cmd-bar-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.cmd-bar-list {
+  padding: 0.4rem;
+}
+
+.cmd-bar-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.1s ease;
+}
+
+.cmd-bar-item:hover,
+.cmd-bar-item.active {
+  background: color-mix(in srgb, var(--color-text) 8%, transparent);
+}
+
+.cmd-bar-item[disabled] {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.cmd-bar-item[disabled]:hover,
+.cmd-bar-item[disabled].active {
+  background: transparent;
+}
+
+.cmd-bar-item-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+}
+
+.cmd-bar-item-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.cmd-bar-item:hover .cmd-bar-item-icon,
+.cmd-bar-item.active .cmd-bar-item-icon {
+  color: var(--color-text);
+}
+
+.cmd-bar-item-label {
+  flex: 1;
+  text-align: left;
+}
+
+.cmd-bar-item-hint {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.03em;
+}
+
+/* ================================
    RESPONSIVE
    ================================ */
 
@@ -269,74 +434,78 @@ body {
 }
 
 /* ================================
-   CHAT: FAB BUTTON
+   CHAT: SPEECH BUBBLE BUTTON
    ================================ */
 
 .chat-fab {
-  position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  width: 3.5rem;
-  height: 3.5rem;
-  border-radius: 50%;
+  position: absolute;
+  top: calc(50% - 14rem);
+  left: calc(50% + 12rem);
   border: none;
-  background: color-mix(in srgb, var(--color-accent) 60%, transparent);
-  backdrop-filter: blur(8px);
-  color: #fff;
-  font-size: 1.5rem;
+  background: var(--color-bg);
+  border: 1px solid color-mix(in srgb, var(--color-text) 15%, transparent);
+  border-radius: 1rem 1rem 1rem 0.2rem;
+  padding: 0.55rem 0.75rem;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
   z-index: 1000;
-  transition: transform 0.3s ease, box-shadow 0.2s ease, background 0.2s ease, opacity 0.4s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  line-height: 1;
   opacity: 0;
   pointer-events: none;
+  transform: scale(0.6);
+  transition: opacity 0.3s ease, transform 0.3s ease, box-shadow 0.2s ease;
 }
 
 .chat-fab.revealed {
   opacity: 1;
   pointer-events: auto;
-}
-
-.chat-fab:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
-}
-
-/* FAB inner elements */
-.chat-fab-emoji,
-.chat-fab-spinner {
-  position: absolute;
-  transition: opacity 0.4s ease, transform 0.4s ease;
-}
-
-.chat-fab-emoji {
-  opacity: 1;
   transform: scale(1);
 }
 
+.chat-fab:hover {
+  transform: scale(1.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
+}
+
+/* Animated dots inside speech bubble */
+.chat-fab-dots {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.chat-fab-dots span {
+  width: 0.4rem;
+  height: 0.4rem;
+  background: var(--color-text-muted);
+  border-radius: 50%;
+  animation: fab-dot-bounce 1.2s ease-in-out infinite;
+}
+
+.chat-fab-dots span:nth-child(2) { animation-delay: 0.15s; }
+.chat-fab-dots span:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes fab-dot-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-0.3rem); opacity: 1; }
+}
+
+/* Spinner (shown during model load) */
 .chat-fab-spinner {
-  width: 1.4rem;
-  height: 1.4rem;
-  border: 2.5px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #fff;
+  position: absolute;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid color-mix(in srgb, var(--color-text) 20%, transparent);
+  border-top-color: var(--color-text);
   border-radius: 50%;
   opacity: 0;
   animation: fab-spin 0.8s linear infinite;
 }
 
-/* Loading state: show spinner, hide emoji */
-.chat-fab.loading .chat-fab-emoji {
-  opacity: 0;
-  transform: scale(0.5);
-}
-
-.chat-fab.loading .chat-fab-spinner {
-  opacity: 1;
-}
+.chat-fab.loading .chat-fab-dots { opacity: 0; }
+.chat-fab.loading .chat-fab-spinner { opacity: 1; }
 
 @keyframes fab-spin {
   to { transform: rotate(360deg); }
@@ -348,8 +517,8 @@ body {
 
 .chat-window {
   position: fixed;
-  bottom: 6rem;
-  right: 2rem;
+  top: calc(50% - 14rem);
+  left: calc(50% + 14rem);
   width: 22rem;
   max-height: 70vh;
   background: var(--color-bg);
@@ -379,6 +548,12 @@ body {
   padding: 0.75rem 1rem;
   border-bottom: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent);
   flex-shrink: 0;
+  cursor: grab;
+  user-select: none;
+}
+
+.chat-header:active {
+  cursor: grabbing;
 }
 
 .chat-header-avatar {
@@ -613,62 +788,48 @@ body {
    CHAT: NO WEBGPU FALLBACK
    ================================ */
 
-.chat-no-webgpu {
-  position: fixed;
-  inset: 0;
-  z-index: 3000;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.chat-no-webgpu.visible {
-  opacity: 1;
-}
-
-.chat-no-webgpu-content {
-  background: var(--color-bg);
-  color: var(--color-text);
-  border-radius: 1rem;
-  padding: 2rem;
-  text-align: center;
-  max-width: 20rem;
-}
-
-.chat-no-webgpu-emoji {
-  font-size: 2.5rem;
-  margin-bottom: 0.75rem;
-}
-
-.chat-no-webgpu-content p {
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
-}
-
-.chat-no-webgpu-close {
-  margin-top: 1rem;
-  background: var(--color-accent);
-  color: #fff;
-  border: none;
-  border-radius: 0.5rem;
-  padding: 0.5rem 1.5rem;
-  font-family: inherit;
-  font-size: 0.9rem;
-  cursor: pointer;
-}
 
 /* ================================
    CHAT: RESPONSIVE
    ================================ */
 
-@media (max-width: 30rem) {
+/* Mid-large screens: slide chat window inward */
+@media (max-width: 80rem) {
   .chat-window {
-    right: 0.75rem;
+    left: calc(50% + 10rem);
+  }
+}
+
+/* Medium screens: tighter but still to the right */
+@media (max-width: 64rem) {
+  .chat-window {
+    left: auto;
+    right: 1.5rem;
+    width: 20rem;
+  }
+}
+
+/* Small screens: narrower window, right-aligned */
+@media (max-width: 48rem) {
+  .chat-window {
+    left: auto;
+    right: 1rem;
+    width: 18rem;
+  }
+}
+
+/* Mobile: chat below the egg tart */
+@media (max-width: 30rem) {
+  .chat-fab {
+    left: calc(50% + 3rem);
+    top: calc(50% - 4rem);
+  }
+
+  .chat-window {
     left: 0.75rem;
-    bottom: 5rem;
+    right: 0.75rem;
+    top: 65vh;
     width: auto;
+    max-height: 33vh;
   }
 }
