@@ -5,6 +5,7 @@ import {
 } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3/dist/transformers.min.js";
 
 const MODEL_ID = "onnx-community/Qwen3-0.6B-ONNX";
+const MAX_TOKENS = 512;
 
 let tokenizer = null;
 let model = null;
@@ -38,20 +39,36 @@ async function load() {
   self.postMessage({ type: "ready" });
 }
 
-async function generate(messages) {
+async function generate(messages, isContinuation) {
   if (!model || !tokenizer) {
     await load();
   }
 
-  const text = tokenizer.apply_chat_template(messages, {
-    tokenize: false,
-    add_generation_prompt: true,
-    enable_thinking: false,
-  });
+  let text;
+  if (isContinuation) {
+    // Build prompt without end-of-turn token after the partial assistant response
+    // Template everything except the last assistant message, then append raw text
+    const lastMsg = messages[messages.length - 1];
+    const prior = messages.slice(0, -1);
+    const base = tokenizer.apply_chat_template(prior, {
+      tokenize: false,
+      add_generation_prompt: true,
+      enable_thinking: false,
+    });
+    text = base + lastMsg.content;
+  } else {
+    text = tokenizer.apply_chat_template(messages, {
+      tokenize: false,
+      add_generation_prompt: true,
+      enable_thinking: false,
+    });
+  }
 
   const inputs = tokenizer(text);
 
-  self.postMessage({ type: "gen_start" });
+  if (!isContinuation) {
+    self.postMessage({ type: "gen_start" });
+  }
 
   let fullText = "";
 
@@ -64,16 +81,21 @@ async function generate(messages) {
     },
   });
 
-  await model.generate({
+  const output = await model.generate({
     ...inputs,
-    max_new_tokens: 512,
+    max_new_tokens: MAX_TOKENS,
     do_sample: true,
     temperature: 0.7,
     top_p: 0.9,
     streamer,
   });
 
-  self.postMessage({ type: "gen_done", text: fullText });
+  // Detect truncation: if we generated MAX_TOKENS, the response was likely cut off
+  const inputLength = inputs.input_ids.dims[1];
+  const newTokens = output.dims[1] - inputLength;
+  const truncated = newTokens >= MAX_TOKENS - 1;
+
+  self.postMessage({ type: "gen_done", text: fullText, truncated });
 }
 
 self.onmessage = async (e) => {
@@ -87,7 +109,7 @@ self.onmessage = async (e) => {
     }
   } else if (type === "generate") {
     try {
-      await generate(e.data.messages);
+      await generate(e.data.messages, e.data.isContinuation || false);
     } catch (err) {
       self.postMessage({ type: "error", error: err.message });
     }
