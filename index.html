@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Madeline Hou</title>
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="cmd-bar.css" />
+    <link rel="stylesheet" href="chat.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -23,7 +25,21 @@
         <span>scroll</span>
         <div class="scroll-line"></div>
       </div>
+      <button class="cmd-trigger" id="cmd-trigger" aria-label="Open command bar" title="Press / to open">
+        <span class="cmd-trigger-slash">/</span>
+      </button>
+      <button class="chat-fab" id="chat-fab" aria-label="Chat with Egg Tart">
+        <span class="chat-fab-spinner" id="chat-fab-spinner"></span>
+        <span class="chat-fab-dots" id="chat-fab-dots"><span></span><span></span><span></span></span>
+      </button>
     </section>
+
+    <!-- Command Bar -->
+    <div class="cmd-bar-overlay" id="cmd-bar-overlay"></div>
+    <div class="cmd-bar" id="cmd-bar" role="dialog" aria-label="Command bar">
+      <input class="cmd-bar-input" id="cmd-bar-input" type="text" placeholder="Type a command…" autocomplete="off" />
+      <div class="cmd-bar-list" id="cmd-bar-list" role="listbox"></div>
+    </div>
 
     <!-- Info -->
     <section class="info">
@@ -37,12 +53,6 @@
         </div>
       </div>
     </section>
-
-    <!-- Chat Widget -->
-    <button class="chat-fab" id="chat-fab" aria-label="Chat with Egg Tart">
-      <span class="chat-fab-spinner" id="chat-fab-spinner"></span>
-      <span class="chat-fab-emoji" id="chat-fab-emoji">🥚</span>
-    </button>
 
     <div class="chat-window" id="chat-window">
       <div class="chat-header">
@@ -73,6 +83,7 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/Draggable.min.js"></script>
     <script type="module" src="egg-tart.js"></script>
     <script src="script.js"></script>
     <script src="chat.js"></script>
