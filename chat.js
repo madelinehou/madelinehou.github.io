@@ -15,9 +15,13 @@ let modelReady = false;
 let generating = false;
 let conversationHistory = [];
 
-// WebGPU check
+// WebGPU check — also exclude mobile (not enough VRAM for the model)
+function isMobile() {
+  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && window.innerWidth < 1024);
+}
+
 function hasWebGPU() {
-  return !!navigator.gpu;
+  return !!navigator.gpu && !isMobile();
 }
 
 // Show/hide helpers
