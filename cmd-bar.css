@@ -1,0 +1,164 @@
+/* ================================
+   COMMAND BAR TRIGGER BUTTON
+   ================================ */
+
+.cmd-trigger {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid color-mix(in srgb, var(--color-text) 15%, transparent);
+  border-radius: 0.5rem;
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  opacity: 0;
+  transition: opacity 0.6s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.cmd-trigger.revealed {
+  opacity: 1;
+}
+
+.cmd-trigger:hover {
+  color: var(--color-text);
+  border-color: color-mix(in srgb, var(--color-text) 30%, transparent);
+}
+
+.cmd-trigger-slash {
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ================================
+   COMMAND BAR (Cmd+K)
+   ================================ */
+
+.cmd-bar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 2000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.cmd-bar-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.cmd-bar {
+  position: fixed;
+  top: 28%;
+  left: 50%;
+  transform: translateX(-50%) scale(0.95);
+  width: min(28rem, calc(100vw - 2rem));
+  background: var(--color-bg);
+  border: 1px solid color-mix(in srgb, var(--color-text) 15%, transparent);
+  border-radius: 1rem;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25);
+  z-index: 2001;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.cmd-bar.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) scale(1);
+}
+
+.cmd-bar-input {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+  background: transparent;
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.cmd-bar-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.cmd-bar-list {
+  padding: 0.4rem;
+}
+
+.cmd-bar-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.1s ease;
+}
+
+.cmd-bar-item:hover,
+.cmd-bar-item.active {
+  background: color-mix(in srgb, var(--color-text) 8%, transparent);
+}
+
+.cmd-bar-item[disabled] {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.cmd-bar-item[disabled]:hover,
+.cmd-bar-item[disabled].active {
+  background: transparent;
+}
+
+.cmd-bar-item-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+}
+
+.cmd-bar-item-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.cmd-bar-item:hover .cmd-bar-item-icon,
+.cmd-bar-item.active .cmd-bar-item-icon {
+  color: var(--color-text);
+}
+
+.cmd-bar-item-label {
+  flex: 1;
+  text-align: left;
+}
+
+.cmd-bar-item-hint {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.03em;
+}
