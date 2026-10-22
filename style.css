@@ -203,15 +203,6 @@ body {
   transform: translateY(2rem);
 }
 
-.info-tagline {
-  font-size: clamp(1rem, 2.5vw, 1.25rem);
-  font-weight: 300;
-  color: var(--color-text-muted);
-  margin-bottom: 2.5rem;
-  opacity: 0;
-  transform: translateY(1.5rem);
-}
-
 .info-links {
   display: flex;
   justify-content: center;
