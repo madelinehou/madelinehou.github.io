@@ -141,14 +141,17 @@ const cmdIcons = {
 const tartCanvas = document.getElementById("egg-tart-canvas");
 const asciiCanvas = document.getElementById("ascii-canvas");
 let asciiTart = null;
+let asciiSpin = null;
+let stopAsciiLoop = null;
 let themeBeforeAscii = null;
 
 async function enterAsciiTheme() {
-  const [{ createAsciiObject }, { TART_SCENE }] = await Promise.all([
+  const [{ createAsciiObject }, { TART_SCENE, createTartSpin, animateWhileVisible }] = await Promise.all([
     import("./ascii-object.js"),
-    import("./tart-scene.js"),
+    import("./tart.js"),
   ]);
-  // ASCII Object has no model tilt, so fold the tilt into the camera's elevation
+  // Put the resting tilt in the camera rather than the model. Tilting the glossy
+  // model toward ASCII Object's fixed studio lights washes the custard out in white.
   const [, camY, camZ] = TART_SCENE.cameraPosition;
   const elevation = Math.atan2(camY, camZ) + TART_SCENE.tilt;
   themeBeforeAscii = html.getAttribute("data-theme");
@@ -158,25 +161,36 @@ async function enterAsciiTheme() {
   tartCanvas.hidden = true;
   asciiTart = createAsciiObject({ canvas: asciiCanvas }, {
     src: "static/egg-tart.glb",
-    autoRotate: true,
     edgeContrast: 2.5,
     environmentIntensity: 0.6,
     roughness: 0.27,
     exposure: 1.6,
-    // Same framing and motion as the 3D tart, converted to ASCII Object's units
+    // Same framing as the 3D tart
     fov: TART_SCENE.fov,
     scale: TART_SCENE.size,
     cameraDistance: Math.hypot(...TART_SCENE.cameraPosition),
     cameraDirection: [0, Math.sin(elevation), Math.cos(elevation)],
     yOffset: -0.3, // cancels ASCII Object's built-in lift so the tart spins in place
+    // Spin and bob come from tart.js, not ASCII Object's orbit camera and float
+    orbit: false,
     rotationIntensity: 0,
-    floatIntensity: TART_SCENE.bobHeight * 10, // its bob height is floatIntensity / 10
-    floatSpeed: TART_SCENE.bobSpeed * 1.5, // its bob phase is time * floatSpeed / 1.5
+    floatIntensity: 0,
+  });
+
+  // OrbitControls sets touch-action: none, which would block scrolling past the hero on phones
+  asciiCanvas.style.touchAction = "";
+  asciiSpin = createTartSpin({ canvas: asciiCanvas, hits: asciiTart.hitTest });
+  stopAsciiLoop = animateWhileVisible(asciiCanvas, () => {
+    const { x, y, bob } = asciiSpin.step();
+    asciiTart.setModelPose(x - TART_SCENE.tilt, y, bob); // the camera already holds the tilt
   });
 }
 
 function exitAsciiTheme() {
   stopSpinner();
+  stopAsciiLoop();
+  asciiSpin.destroy();
+  asciiSpin = null;
   asciiTart.destroy();
   asciiTart = null;
   asciiCanvas.hidden = true;

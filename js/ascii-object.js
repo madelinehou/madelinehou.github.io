@@ -1,6 +1,8 @@
 // ASCII Object from Canvas UI (https://canvasui.dev/docs/components/ascii-object),
-// MIT + Commons Clause. Vanilla build compiled from TypeScript with esbuild. Only change:
-// a cameraDirection option ([x, y, z]) in place of the fixed CAMERA_DIR.
+// MIT + Commons Clause. Vanilla build compiled from TypeScript with esbuild, then trimmed:
+// loads GLB/glTF models only (image, SVG, and Draco support removed), takes a
+// cameraDirection option ([x, y, z]) in place of the fixed CAMERA_DIR, and adds
+// setModelPose and hitTest so the site can drive its own spin and bob.
 const canvasDimensionLimits = /* @__PURE__ */ new WeakMap();
 function getCanvasPixelRatio(element, context) {
   const scale = window.visualViewport?.scale || 1;
@@ -58,7 +60,6 @@ function createCanvasResizeObserver(onResize) {
 }
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 const PRINTABLE_ASCII = Array.from(
   { length: 95 },
@@ -93,7 +94,6 @@ const DEFAULTS = {
   fov: 65,
   cameraDistance: 4.2,
   cameraDirection: [0, -1, 4],
-  dracoDecoderPath: "https://www.gstatic.com/draco/versioned/decoders/1.5.7/",
   onLoad: null,
   onError: null
 };
@@ -355,14 +355,6 @@ const ROOM_FORMERS = [
   }
 ];
 const MODEL_LIFT = 0.3;
-const RASTER_SIZE = 2048;
-const TRACE_SIZE = 512;
-const ALPHA_CUTOFF = 127;
-const SIMPLIFY_TOLERANCE = 1;
-const MIN_AREA = 6;
-const MAX_CONTOURS = 64;
-const EXTRUDE_DEPTH = 0.08;
-const BEVEL_SIZE = 6e-3;
 const ATLAS_CELL = 64;
 const ATLAS_PAD = 8;
 const MAX_GLYPHS = 255;
@@ -426,335 +418,11 @@ function glyphShapes(image, cols, cellW, cellH, count) {
   }
   return vectors;
 }
-function sniffKind(bytes) {
-  if (bytes.length < 4) return null;
-  const ascii = (start, text) => {
-    for (let i = 0; i < text.length; i++) {
-      if (bytes[start + i] !== text.charCodeAt(i)) return false;
-    }
-    return true;
-  };
-  if (ascii(0, "glTF")) return "glb";
-  if (bytes[0] === 137 && ascii(1, "PNG")) return "bitmap";
-  if (bytes[0] === 255 && bytes[1] === 216) return "bitmap";
-  if (ascii(0, "RIFF") && ascii(8, "WEBP")) return "bitmap";
-  if (ascii(0, "GIF8")) return "bitmap";
-  let head = "";
-  try {
-    head = new TextDecoder().decode(bytes.subarray(0, 2048)).replace(/^\uFEFF/, "").trimStart();
-  } catch {
-    return null;
-  }
-  if (head.startsWith("{")) return "gltf";
-  if (head.startsWith("<")) return head.includes("<svg") ? "svg" : null;
-  return null;
-}
 function makeCanvas(width, height) {
   const canvas = document.createElement("canvas");
   canvas.width = Math.max(1, Math.round(width));
   canvas.height = Math.max(1, Math.round(height));
   return canvas;
-}
-function drawToCanvas(source, width, height) {
-  const canvas = makeCanvas(width, height);
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("2d context unavailable");
-  ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
-  return canvas;
-}
-function decodeWithImage(blob) {
-  return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(blob);
-    const image = new Image();
-    image.onload = () => {
-      URL.revokeObjectURL(url);
-      resolve(image);
-    };
-    image.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error("Could not decode the image"));
-    };
-    image.src = url;
-  });
-}
-async function decodeWithBitmap(blob) {
-  if (typeof createImageBitmap !== "function") return null;
-  try {
-    const bitmap = await createImageBitmap(blob);
-    const longest = Math.max(bitmap.width, bitmap.height, 1);
-    const scale = Math.min(1, RASTER_SIZE / longest);
-    const canvas = drawToCanvas(
-      bitmap,
-      bitmap.width * scale,
-      bitmap.height * scale
-    );
-    bitmap.close();
-    return canvas;
-  } catch {
-    return null;
-  }
-}
-async function decodeImage(blob, kind) {
-  const vector = kind === "svg";
-  if (!vector) {
-    const decoded = await decodeWithBitmap(blob);
-    if (decoded) return decoded;
-  }
-  const image = await decodeWithImage(blob);
-  const width = image.naturalWidth || RASTER_SIZE;
-  const height = image.naturalHeight || RASTER_SIZE;
-  const longest = Math.max(width, height, 1);
-  const scale = vector ? RASTER_SIZE / longest : Math.min(1, RASTER_SIZE / longest);
-  return drawToCanvas(image, width * scale, height * scale);
-}
-function traceContours(inside, width, height) {
-  const segments = [];
-  for (let y = 0; y < height - 1; y++) {
-    for (let x = 0; x < width - 1; x++) {
-      const base = y * width + x;
-      const code = inside[base] | inside[base + 1] << 1 | inside[base + width + 1] << 2 | inside[base + width] << 3;
-      if (code === 0 || code === 15) continue;
-      const top = x + 0.5;
-      const right = y + 0.5;
-      switch (code) {
-        case 1:
-        case 14:
-          segments.push(x, right, top, y);
-          break;
-        case 2:
-        case 13:
-          segments.push(top, y, x + 1, right);
-          break;
-        case 3:
-        case 12:
-          segments.push(x, right, x + 1, right);
-          break;
-        case 4:
-        case 11:
-          segments.push(x + 1, right, top, y + 1);
-          break;
-        case 6:
-        case 9:
-          segments.push(top, y, top, y + 1);
-          break;
-        case 7:
-        case 8:
-          segments.push(x, right, top, y + 1);
-          break;
-        case 5:
-          segments.push(x, right, top, y, x + 1, right, top, y + 1);
-          break;
-        default:
-          segments.push(top, y, x + 1, right, x, right, top, y + 1);
-          break;
-      }
-    }
-  }
-  const count = segments.length / 4;
-  const stride = width * 2 + 1;
-  const ends = /* @__PURE__ */ new Map();
-  const keyAt = (index) => segments[index * 2 + 1] * 2 * stride + segments[index * 2] * 2;
-  for (let i = 0; i < count; i++) {
-    for (const end of [i * 2, i * 2 + 1]) {
-      const key = keyAt(end);
-      const bucket = ends.get(key);
-      if (bucket) bucket.push(i);
-      else ends.set(key, [i]);
-    }
-  }
-  const used = new Uint8Array(count);
-  const contours = [];
-  for (let start = 0; start < count; start++) {
-    if (used[start]) continue;
-    const points = [];
-    let current = start;
-    let x = segments[start * 4];
-    let y = segments[start * 4 + 1];
-    while (current >= 0 && !used[current]) {
-      used[current] = 1;
-      const head = current * 4;
-      const forward = segments[head] === x && segments[head + 1] === y;
-      x = forward ? segments[head + 2] : segments[head];
-      y = forward ? segments[head + 3] : segments[head + 1];
-      points.push(x, y);
-      const bucket = ends.get(y * 2 * stride + x * 2);
-      let next = -1;
-      if (bucket) {
-        for (const candidate of bucket) {
-          if (!used[candidate]) {
-            next = candidate;
-            break;
-          }
-        }
-      }
-      current = next;
-    }
-    if (points.length >= 8) contours.push(points);
-  }
-  return contours;
-}
-function simplify(points, tolerance) {
-  const count = points.length / 2;
-  if (count < 4) return points;
-  const keep = new Uint8Array(count);
-  keep[0] = 1;
-  keep[count - 1] = 1;
-  const stack = [0, count - 1];
-  const toleranceSq = tolerance * tolerance;
-  while (stack.length) {
-    const last = stack.pop();
-    const first = stack.pop();
-    if (last - first < 2) continue;
-    const ax = points[first * 2];
-    const ay = points[first * 2 + 1];
-    const dx = points[last * 2] - ax;
-    const dy = points[last * 2 + 1] - ay;
-    const lengthSq = dx * dx + dy * dy;
-    let farthest = -1;
-    let farthestSq = toleranceSq;
-    for (let i = first + 1; i < last; i++) {
-      const px = points[i * 2] - ax;
-      const py = points[i * 2 + 1] - ay;
-      const t = lengthSq > 0 ? (px * dx + py * dy) / lengthSq : 0;
-      const clamped = t < 0 ? 0 : t > 1 ? 1 : t;
-      const ox = px - dx * clamped;
-      const oy = py - dy * clamped;
-      const distanceSq = ox * ox + oy * oy;
-      if (distanceSq > farthestSq) {
-        farthest = i;
-        farthestSq = distanceSq;
-      }
-    }
-    if (farthest < 0) continue;
-    keep[farthest] = 1;
-    stack.push(first, farthest, farthest, last);
-  }
-  const result = [];
-  for (let i = 0; i < count; i++) {
-    if (keep[i]) result.push(points[i * 2], points[i * 2 + 1]);
-  }
-  return result;
-}
-function ringArea(points) {
-  let area = 0;
-  for (let i = 0, j = points.length - 2; i < points.length; j = i, i += 2) {
-    area += (points[j] - points[i]) * (points[j + 1] + points[i + 1]);
-  }
-  return Math.abs(area) / 2;
-}
-function ringContains(points, x, y) {
-  let inside = false;
-  for (let i = 0, j = points.length - 2; i < points.length; j = i, i += 2) {
-    const yi = points[i + 1];
-    const yj = points[j + 1];
-    if (yi > y === yj > y) continue;
-    const t = (y - yi) / (yj - yi);
-    if (x < points[i] + t * (points[j] - points[i])) inside = !inside;
-  }
-  return inside;
-}
-function buildShapes(canvas, aspectW, aspectH) {
-  const rectangle = () => new THREE.Shape([
-    new THREE.Vector2(0, 0),
-    new THREE.Vector2(aspectW, 0),
-    new THREE.Vector2(aspectW, aspectH),
-    new THREE.Vector2(0, aspectH)
-  ]);
-  const scale = Math.min(
-    1,
-    TRACE_SIZE / Math.max(canvas.width, canvas.height, 1)
-  );
-  const trace = scale < 1 ? drawToCanvas(canvas, canvas.width * scale, canvas.height * scale) : canvas;
-  const ctx = trace.getContext("2d", { willReadFrequently: true });
-  if (!ctx) return [rectangle()];
-  const traceW = trace.width;
-  const traceH = trace.height;
-  const data = ctx.getImageData(0, 0, traceW, traceH).data;
-  const width = traceW + 2;
-  const height = traceH + 2;
-  const inside = new Uint8Array(width * height);
-  let covered = 0;
-  for (let y = 0; y < traceH; y++) {
-    for (let x = 0; x < traceW; x++) {
-      const on = data[(y * traceW + x) * 4 + 3] >= ALPHA_CUTOFF ? 1 : 0;
-      inside[(y + 1) * width + x + 1] = on;
-      covered += on;
-    }
-  }
-  if (covered >= traceW * traceH * 0.995) return [rectangle()];
-  const rings = traceContours(inside, width, height).map((points) => simplify(points, SIMPLIFY_TOLERANCE)).filter((points) => points.length >= 6 && ringArea(points) >= MIN_AREA).map((points) => ({ points, area: ringArea(points), depth: 0 })).sort((a, b) => b.area - a.area).slice(0, MAX_CONTOURS);
-  if (!rings.length) return [rectangle()];
-  for (const ring of rings) {
-    for (const other of rings) {
-      if (other !== ring && other.area > ring.area && ringContains(other.points, ring.points[0], ring.points[1])) {
-        ring.depth += 1;
-      }
-    }
-  }
-  const toPath = (points) => {
-    const path = [];
-    for (let i = 0; i < points.length; i += 2) {
-      path.push(
-        new THREE.Vector2(
-          (points[i] - 0.5) / traceW * aspectW,
-          (1 - (points[i + 1] - 0.5) / traceH) * aspectH
-        )
-      );
-    }
-    return path;
-  };
-  const shapes = /* @__PURE__ */ new Map();
-  for (const ring of rings) {
-    if (ring.depth % 2 === 0)
-      shapes.set(ring, new THREE.Shape(toPath(ring.points)));
-  }
-  for (const ring of rings) {
-    if (ring.depth % 2 === 0) continue;
-    let parent = null;
-    for (const other of rings) {
-      if (other.depth !== ring.depth - 1) continue;
-      if (!ringContains(other.points, ring.points[0], ring.points[1])) continue;
-      if (!parent || other.area < parent.area) parent = other;
-    }
-    const shape = parent ? shapes.get(parent) : void 0;
-    if (shape) shape.holes.push(new THREE.Path(toPath(ring.points)));
-  }
-  const result = [...shapes.values()];
-  return result.length ? result : [rectangle()];
-}
-function createImageObject(canvas, anisotropy) {
-  const longest = Math.max(canvas.width, canvas.height, 1);
-  const aspectW = canvas.width / longest;
-  const aspectH = canvas.height / longest;
-  const geometry = new THREE.ExtrudeGeometry(
-    buildShapes(canvas, aspectW, aspectH),
-    {
-      depth: EXTRUDE_DEPTH,
-      bevelEnabled: true,
-      bevelThickness: BEVEL_SIZE,
-      bevelSize: BEVEL_SIZE,
-      bevelOffset: 0,
-      bevelSegments: 2,
-      steps: 1,
-      curveSegments: 1
-    }
-  );
-  const position = geometry.getAttribute("position");
-  const uv = new Float32Array(position.count * 2);
-  for (let i = 0; i < position.count; i++) {
-    uv[i * 2] = position.getX(i) / aspectW;
-    uv[i * 2 + 1] = position.getY(i) / aspectH;
-  }
-  geometry.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  texture.anisotropy = anisotropy;
-  const material = new THREE.MeshStandardMaterial({
-    map: texture,
-    roughness: 0.6,
-    metalness: 0
-  });
-  return new THREE.Mesh(geometry, material);
 }
 function disposeObject(root) {
   root.traverse((node) => {
@@ -794,6 +462,8 @@ function createAsciiObject(elements, options = {}) {
   const floatGroup = new THREE.Group();
   floatGroup.position.y = MODEL_LIFT;
   const fitGroup = new THREE.Group();
+  const hitRaycaster = new THREE.Raycaster();
+  const hitPointer = new THREE.Vector2();
   floatGroup.add(fitGroup);
   scene.add(floatGroup);
   const controls = new OrbitControls(camera, canvas);
@@ -948,9 +618,6 @@ function createAsciiObject(elements, options = {}) {
   let loadToken = 0;
   let disposed = false;
   const loader = new GLTFLoader();
-  const draco = new DRACOLoader();
-  draco.setDecoderPath(config.dracoDecoderPath);
-  loader.setDRACOLoader(draco);
   function applyRoughness() {
     if (!model) return;
     model.traverse((node) => {
@@ -1002,29 +669,13 @@ function createAsciiObject(elements, options = {}) {
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const buffer = await response.arrayBuffer();
       if (disposed || token !== loadToken) return;
-      const bytes = new Uint8Array(buffer);
-      const kind = sniffKind(bytes);
-      if (!kind) throw new Error("Unrecognized asset format");
-      if (kind === "glb" || kind === "gltf") {
-        draco.setDecoderPath(config.dracoDecoderPath);
-        const resourcePath = src.slice(0, src.lastIndexOf("/") + 1);
-        const data = kind === "glb" ? buffer : new TextDecoder().decode(bytes);
-        const gltf = await loader.parseAsync(data, resourcePath);
-        if (disposed || token !== loadToken) {
-          disposeObject(gltf.scene);
-          return;
-        }
-        adoptModel(gltf.scene);
-      } else {
-        const blob = new Blob([buffer], {
-          type: kind === "svg" ? "image/svg+xml" : ""
-        });
-        const source = await decodeImage(blob, kind);
-        if (disposed || token !== loadToken) return;
-        adoptModel(
-          createImageObject(source, renderer.capabilities.getMaxAnisotropy())
-        );
+      const resourcePath = src.slice(0, src.lastIndexOf("/") + 1);
+      const gltf = await loader.parseAsync(buffer, resourcePath);
+      if (disposed || token !== loadToken) {
+        disposeObject(gltf.scene);
+        return;
       }
+      adoptModel(gltf.scene);
       config.onLoad?.();
     } catch (error) {
       if (disposed || token !== loadToken) return;
@@ -1243,6 +894,21 @@ function createAsciiObject(elements, options = {}) {
       startLoop();
     },
     resize,
+    /** Rotate and raise the model itself, for callers that drive their own motion instead of orbit and float. */
+    setModelPose(x, y, offsetY) {
+      fitGroup.rotation.set(x, y, 0);
+      fitGroup.position.y = offsetY;
+    },
+    /** Whether client coordinates land on the model. */
+    hitTest(clientX, clientY) {
+      const rect = canvas.getBoundingClientRect();
+      hitPointer.set(
+        (clientX - rect.left) / rect.width * 2 - 1,
+        -((clientY - rect.top) / rect.height) * 2 + 1
+      );
+      hitRaycaster.setFromCamera(hitPointer, camera);
+      return hitRaycaster.intersectObject(fitGroup, true).length > 0;
+    },
     destroy() {
       disposed = true;
       loadToken += 1;
@@ -1255,7 +921,6 @@ function createAsciiObject(elements, options = {}) {
       if (roomScene) disposeObject(roomScene);
       envTarget?.dispose();
       pmrem.dispose();
-      draco.dispose();
       target.dispose();
       cellTarget.dispose();
       cellMaterial.dispose();
