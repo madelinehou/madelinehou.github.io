@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Madeline Hou</title>
-    <link rel="stylesheet" href="style.css" />
-    <link rel="stylesheet" href="cmd-bar.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/cmd-bar.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -19,6 +19,7 @@
     <!-- Hero: 3D Egg Tart -->
     <section class="hero">
       <canvas id="egg-tart-canvas"></canvas>
+      <canvas id="ascii-canvas" hidden></canvas>
       <div class="hero-hint">drag to spin</div>
       <div class="scroll-indicator">
         <span>scroll</span>
@@ -39,7 +40,7 @@
     <!-- Info -->
     <section class="info">
       <div class="container">
-        <h1 class="info-name">Madeline H<span class="theme-o" id="theme-toggle" role="button" aria-label="Toggle theme" tabindex="0"><svg class="theme-icon icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg><svg class="theme-icon icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></span>u</h1>
+        <h1 class="info-name">Madeline H<span class="theme-o" id="theme-toggle" role="button" aria-label="Toggle theme" tabindex="0"><svg class="theme-icon icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg><svg class="theme-icon icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><span class="theme-icon icon-ascii" id="ascii-spinner" aria-hidden="true"></span></span>u</h1>
 
         <div class="info-links">
           <a href="https://www.linkedin.com/in/madeline-hou/" class="info-link" target="_blank" rel="noopener">LinkedIn</a>
@@ -60,7 +61,7 @@
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/Draggable.min.js"></script>
-    <script type="module" src="egg-tart.js"></script>
-    <script src="script.js"></script>
+    <script type="module" src="js/tart-3d.js"></script>
+    <script src="js/page.js"></script>
   </body>
 </html>

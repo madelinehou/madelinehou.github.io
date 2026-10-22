@@ -32,6 +32,15 @@
   --color-accent: oklch(72% 0.18 35);
 }
 
+/* ASCII theme: a cool terminal-like dark mode, set by the ASCII command */
+[data-theme="ascii"] {
+  --color-bg: #0b1016;
+  --color-hero-top: #0e151d;
+  --color-text: #cfe0f0;
+  --color-text-muted: #6f8294;
+  --color-accent: oklch(70% 0.13 235);
+}
+
 /* ================================
    THEME TOGGLE — "o" in Hou
    ================================ */
@@ -83,6 +92,27 @@
   transform: rotate(0deg);
 }
 
+/* ASCII theme: a spinner glyph, which leads back to the previous theme */
+.icon-ascii {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 400;
+  line-height: 1;
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+.theme-o.is-ascii .icon-moon,
+.theme-o.is-ascii .icon-sun {
+  opacity: 0;
+}
+
+.theme-o.is-ascii .icon-ascii {
+  opacity: 1;
+  transform: scale(1);
+}
+
 ::selection {
   background-color: var(--color-accent);
   color: #fff;
@@ -128,12 +158,18 @@ body {
   background: transparent;
 }
 
-#egg-tart-canvas {
+#egg-tart-canvas,
+#ascii-canvas {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   display: block;
+}
+
+#egg-tart-canvas[hidden],
+#ascii-canvas[hidden] {
+  display: none;
 }
 
 .hero-hint {

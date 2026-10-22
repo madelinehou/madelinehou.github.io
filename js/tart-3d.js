@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { TART_SCENE, createTartSpin, animateWhileVisible } from "./tart-shared.js";
 
 // ================================
 // SCENE SETUP
@@ -19,12 +20,12 @@ renderer.toneMappingExposure = 1.0;
 const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera(
-  45,
+  TART_SCENE.fov,
   window.innerWidth / window.innerHeight,
   0.1,
   100
 );
-camera.position.set(0, 2, 5);
+camera.position.fromArray(TART_SCENE.cameraPosition);
 camera.lookAt(0, 0, 0);
 
 // ================================
@@ -65,15 +66,10 @@ loader.load(
     const size = box.getSize(new THREE.Vector3());
     model.position.sub(center);
 
-    // Scale to a reasonable size (target ~2 units across)
     const maxDim = Math.max(size.x, size.y, size.z);
-    const scale = 2 / maxDim;
-    model.scale.setScalar(scale);
+    model.scale.setScalar(TART_SCENE.size / maxDim);
 
     tartGroup.add(model);
-
-    // Slight tilt toward viewer
-    tartGroup.rotation.x = 0.3;
   },
   undefined,
   (error) => {
@@ -85,79 +81,18 @@ loader.load(
 // INTERACTION: DRAG TO SPIN
 // ================================
 
-let isDragging = false;
-let previousMouseX = 0;
-let previousMouseY = 0;
-let rotationVelocityY = 0.005;
-let rotationVelocityX = 0;
-const damping = 0.95;
-
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 
-function getPointerPos(e) {
-  if (e.touches && e.touches.length > 0) {
-    return { x: e.touches[0].clientX, y: e.touches[0].clientY };
-  }
-  return { x: e.clientX, y: e.clientY };
-}
-
-function hitsEggTart(e) {
-  const pos = getPointerPos(e);
+function hitsEggTart(x, y) {
   const rect = canvas.getBoundingClientRect();
-  pointer.x = ((pos.x - rect.left) / rect.width) * 2 - 1;
-  pointer.y = -((pos.y - rect.top) / rect.height) * 2 + 1;
+  pointer.x = ((x - rect.left) / rect.width) * 2 - 1;
+  pointer.y = -((y - rect.top) / rect.height) * 2 + 1;
   raycaster.setFromCamera(pointer, camera);
   return raycaster.intersectObject(tartGroup, true).length > 0;
 }
 
-function onPointerDown(e) {
-  if (!hitsEggTart(e)) return;
-  isDragging = true;
-  const pos = getPointerPos(e);
-  previousMouseX = pos.x;
-  previousMouseY = pos.y;
-  canvas.style.cursor = "grabbing";
-  if (e.touches) e.preventDefault();
-}
-
-let lastCursorCheck = 0;
-
-function onPointerMove(e) {
-  if (!isDragging) {
-    // Throttle cursor raycasts to avoid interrupting animation
-    if (!e.touches) {
-      const now = Date.now();
-      if (now - lastCursorCheck > 150) {
-        lastCursorCheck = now;
-        canvas.style.cursor = hitsEggTart(e) ? "grab" : "default";
-      }
-    }
-    return;
-  }
-  const pos = getPointerPos(e);
-  const deltaX = pos.x - previousMouseX;
-  const deltaY = pos.y - previousMouseY;
-  rotationVelocityY = deltaX * 0.005;
-  rotationVelocityX = deltaY * 0.003;
-  previousMouseX = pos.x;
-  previousMouseY = pos.y;
-  if (e.touches) e.preventDefault();
-}
-
-function onPointerUp() {
-  isDragging = false;
-  canvas.style.cursor = "default";
-}
-
-canvas.addEventListener("mousedown", onPointerDown);
-canvas.addEventListener("mousemove", onPointerMove);
-canvas.addEventListener("mouseup", onPointerUp);
-canvas.addEventListener("mouseleave", onPointerUp);
-
-canvas.addEventListener("touchstart", onPointerDown, { passive: false });
-canvas.addEventListener("touchmove", onPointerMove, { passive: false });
-canvas.addEventListener("touchend", onPointerUp);
+const spin = createTartSpin({ canvas, hits: hitsEggTart });
 
 // ================================
 // RESIZE
@@ -175,29 +110,9 @@ window.addEventListener("resize", onResize);
 // ANIMATION LOOP
 // ================================
 
-function animate() {
-  requestAnimationFrame(animate);
-
-  tartGroup.rotation.y += rotationVelocityY;
-  tartGroup.rotation.x += rotationVelocityX;
-
-  if (!isDragging) {
-    rotationVelocityY *= damping;
-    rotationVelocityX *= damping;
-
-    // Maintain gentle idle spin
-    if (Math.abs(rotationVelocityY) < 0.004) {
-      rotationVelocityY = 0.004;
-    }
-
-    // Slowly return x tilt toward default
-    const targetTiltX = 0.3;
-    tartGroup.rotation.x += (targetTiltX - tartGroup.rotation.x) * 0.02;
-  }
-
-  // Gentle float bob
-  tartGroup.position.y = Math.sin(Date.now() * 0.001) * 0.08;
-
+animateWhileVisible(canvas, () => {
+  const { x, y, bob } = spin.step();
+  tartGroup.rotation.set(x, y, 0);
+  tartGroup.position.y = bob;
   renderer.render(scene, camera);
-}
-animate();
+});
