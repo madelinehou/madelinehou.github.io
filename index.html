@@ -26,6 +26,9 @@
         "sameAs": ["https://www.linkedin.com/in/madeline-hou/", "https://github.com/madelinehou"]
       }
     </script>
+    <!-- Phone browser chrome follows these; page.js keeps them in sync with the theme -->
+    <meta name="theme-color" content="#edddcb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#201710" media="(prefers-color-scheme: dark)" />
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/cmd-bar.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -55,6 +58,7 @@
   <body>
     <!-- Hero: 3D Egg Tart -->
     <section class="hero">
+      <div class="tart-shadow" aria-hidden="true"></div>
       <canvas id="egg-tart-canvas"></canvas>
       <canvas id="ascii-canvas" hidden></canvas>
       <div class="hero-hint">drag to spin</div>
