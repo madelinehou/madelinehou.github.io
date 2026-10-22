@@ -13,14 +13,24 @@ if (savedTheme) {
   html.setAttribute("data-theme", savedTheme);
 }
 
-function syncIcon() {
+function isDarkTheme() {
   const theme = html.getAttribute("data-theme");
-  const isDark = theme === "dark" || (!theme && window.matchMedia("(prefers-color-scheme: dark)").matches);
-  themeToggle.classList.toggle("is-sun", isDark);
+  return theme === "dark" || theme === "ascii" || (!theme && window.matchMedia("(prefers-color-scheme: dark)").matches);
+}
+
+function syncIcon() {
+  themeToggle.classList.toggle("is-sun", isDarkTheme());
+  themeToggle.classList.toggle("is-ascii", html.getAttribute("data-theme") === "ascii");
 }
 syncIcon();
 
 function toggleTheme() {
+  // From the ASCII theme, the toggle returns to the theme it replaced
+  if (asciiTart) {
+    exitAsciiTheme();
+    return;
+  }
+
   const current = html.getAttribute("data-theme");
   const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
@@ -36,6 +46,51 @@ function toggleTheme() {
   syncIcon();
 }
 
+// In the ASCII theme, the "o" is a spinner glyph that animates on hover, like
+// Claude's. Each frame has its own size: in a terminal the glyphs come from
+// different fallback fonts, and that size wobble is what makes it feel alive.
+// ︎ keeps ✳ as text instead of an emoji.
+const asciiSpinner = document.getElementById("ascii-spinner");
+const spinnerFrames = [
+  { glyph: "·", size: 1 },
+  { glyph: "✢", size: 0.7 },
+  { glyph: "✳︎", size: 0.8 },
+  { glyph: "✶", size: 0.9 },
+  { glyph: "✻", size: 1 },
+  { glyph: "✽", size: 1.1 },
+];
+const spinnerRest = 2; // ✳
+let spinnerTimer = null;
+let spinnerFrame = spinnerRest;
+let spinnerStep = 1;
+
+function showSpinnerFrame(index) {
+  const { glyph, size } = spinnerFrames[index];
+  asciiSpinner.textContent = glyph;
+  asciiSpinner.style.fontSize = `${size * 1.1}em`;
+}
+showSpinnerFrame(spinnerRest);
+
+function startSpinner() {
+  if (!asciiTart || spinnerTimer) return;
+  spinnerTimer = setInterval(() => {
+    // Ping-pong through the frames
+    if (spinnerFrame + spinnerStep < 0 || spinnerFrame + spinnerStep >= spinnerFrames.length) spinnerStep *= -1;
+    spinnerFrame += spinnerStep;
+    showSpinnerFrame(spinnerFrame);
+  }, 120);
+}
+
+function stopSpinner() {
+  clearInterval(spinnerTimer);
+  spinnerTimer = null;
+  spinnerFrame = spinnerRest;
+  spinnerStep = 1;
+  showSpinnerFrame(spinnerRest);
+}
+
+themeToggle.addEventListener("mouseenter", startSpinner);
+themeToggle.addEventListener("mouseleave", stopSpinner);
 themeToggle.addEventListener("click", toggleTheme);
 themeToggle.addEventListener("keydown", (e) => {
   if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleTheme(); }
@@ -76,25 +131,83 @@ const cmdIcons = {
   sun: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>',
   music: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
   cocktail: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 22h8"/><path d="M12 11v11"/><path d="m19 3-7 8-7-8Z"/></svg>',
+  terminal: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19h8"/><path d="m4 17 6-6-6-6"/></svg>',
 };
+
+// ================================
+// ASCII THEME (Canvas UI ASCII Object, loaded on first use)
+// ================================
+
+const tartCanvas = document.getElementById("egg-tart-canvas");
+const asciiCanvas = document.getElementById("ascii-canvas");
+let asciiTart = null;
+let themeBeforeAscii = null;
+
+async function enterAsciiTheme() {
+  const [{ createAsciiObject }, { TART_SCENE }] = await Promise.all([
+    import("./ascii-object.js"),
+    import("./tart-scene.js"),
+  ]);
+  // ASCII Object has no model tilt, so fold the tilt into the camera's elevation
+  const [, camY, camZ] = TART_SCENE.cameraPosition;
+  const elevation = Math.atan2(camY, camZ) + TART_SCENE.tilt;
+  themeBeforeAscii = html.getAttribute("data-theme");
+  html.setAttribute("data-theme", "ascii");
+  syncIcon();
+  asciiCanvas.hidden = false;
+  tartCanvas.hidden = true;
+  asciiTart = createAsciiObject({ canvas: asciiCanvas }, {
+    src: "static/egg-tart.glb",
+    autoRotate: true,
+    edgeContrast: 2.5,
+    environmentIntensity: 0.6,
+    roughness: 0.27,
+    exposure: 1.6,
+    // Same framing and motion as the 3D tart, converted to ASCII Object's units
+    fov: TART_SCENE.fov,
+    scale: TART_SCENE.size,
+    cameraDistance: Math.hypot(...TART_SCENE.cameraPosition),
+    cameraDirection: [0, Math.sin(elevation), Math.cos(elevation)],
+    yOffset: -0.3, // cancels ASCII Object's built-in lift so the tart spins in place
+    rotationIntensity: 0,
+    floatIntensity: TART_SCENE.bobHeight * 10, // its bob height is floatIntensity / 10
+    floatSpeed: TART_SCENE.bobSpeed * 1.5, // its bob phase is time * floatSpeed / 1.5
+  });
+}
+
+function exitAsciiTheme() {
+  stopSpinner();
+  asciiTart.destroy();
+  asciiTart = null;
+  asciiCanvas.hidden = true;
+  tartCanvas.hidden = false;
+  if (themeBeforeAscii) html.setAttribute("data-theme", themeBeforeAscii);
+  else html.removeAttribute("data-theme");
+  syncIcon();
+}
 
 const commands = [
   {
     id: "theme",
-    get icon() {
-      const theme = html.getAttribute("data-theme");
-      const isDark = theme === "dark" || (!theme && window.matchMedia("(prefers-color-scheme: dark)").matches);
-      return isDark ? cmdIcons.sun : cmdIcons.moon;
-    },
+    get icon() { return isDarkTheme() ? cmdIcons.sun : cmdIcons.moon; },
     label: "Switch theme",
     hint: "",
     action() { toggleTheme(); },
+  },
+  {
+    id: "ascii",
+    icon: cmdIcons.terminal,
+    label: "Code Blue", // toggles the ASCII theme
+    hint: "",
+    hidden: true,
+    action() { asciiTart ? exitAsciiTheme() : enterAsciiTheme(); },
   },
   {
     id: "playlist",
     icon: cmdIcons.music,
     label: "Play the hits",
     hint: "",
+    hidden: true,
     action() { window.open("https://open.spotify.com/playlist/0zVqbdRubtK7dUGz5twR4i?si=cb76d2c213c34410", "_blank"); },
   },
   {
@@ -102,6 +215,7 @@ const commands = [
     icon: cmdIcons.cocktail,
     label: "Make a drink",
     hint: "",
+    hidden: true,
     exhausted: false,
     action() {
       if (this.exhausted) return;
@@ -119,7 +233,8 @@ let activeIndex = 0;
 
 function renderCommands(filter = "") {
   const lower = filter.toLowerCase();
-  const visible = commands.filter((c) => c.label.toLowerCase().includes(lower));
+  // Hidden commands only show up once the visitor starts typing
+  const visible = commands.filter((c) => (lower || !c.hidden) && c.label.toLowerCase().startsWith(lower));
   cmdBarList.innerHTML = "";
 
   visible.forEach((cmd, i) => {
@@ -167,6 +282,7 @@ function openCmdBar() {
 function closeCmdBar() {
   cmdBarOverlay.classList.remove("visible");
   cmdBar.classList.remove("visible");
+  cmdBarInput.blur();
 }
 
 function isCmdBarOpen() {

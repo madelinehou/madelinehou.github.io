@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { TART_SCENE } from "./tart-scene.js";
 
 // ================================
 // SCENE SETUP
@@ -19,12 +20,12 @@ renderer.toneMappingExposure = 1.0;
 const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera(
-  45,
+  TART_SCENE.fov,
   window.innerWidth / window.innerHeight,
   0.1,
   100
 );
-camera.position.set(0, 2, 5);
+camera.position.fromArray(TART_SCENE.cameraPosition);
 camera.lookAt(0, 0, 0);
 
 // ================================
@@ -65,15 +66,13 @@ loader.load(
     const size = box.getSize(new THREE.Vector3());
     model.position.sub(center);
 
-    // Scale to a reasonable size (target ~2 units across)
     const maxDim = Math.max(size.x, size.y, size.z);
-    const scale = 2 / maxDim;
-    model.scale.setScalar(scale);
+    model.scale.setScalar(TART_SCENE.size / maxDim);
 
     tartGroup.add(model);
 
     // Slight tilt toward viewer
-    tartGroup.rotation.x = 0.3;
+    tartGroup.rotation.x = TART_SCENE.tilt;
   },
   undefined,
   (error) => {
@@ -191,12 +190,11 @@ function animate() {
     }
 
     // Slowly return x tilt toward default
-    const targetTiltX = 0.3;
-    tartGroup.rotation.x += (targetTiltX - tartGroup.rotation.x) * 0.02;
+    tartGroup.rotation.x += (TART_SCENE.tilt - tartGroup.rotation.x) * 0.02;
   }
 
   // Gentle float bob
-  tartGroup.position.y = Math.sin(Date.now() * 0.001) * 0.08;
+  tartGroup.position.y = Math.sin(Date.now() * 0.001 * TART_SCENE.bobSpeed) * TART_SCENE.bobHeight;
 
   renderer.render(scene, camera);
 }
