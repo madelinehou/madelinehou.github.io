@@ -1,4 +1,4 @@
-// Everything shared by the 3D tart (egg-tart.js) and the ASCII tart (script.js):
+// Everything shared by the 3D tart (tart-3d.js) and the ASCII tart (page.js):
 // how it's framed, how it moves, and one pose that both read, so switching
 // between them picks up mid-spin.
 

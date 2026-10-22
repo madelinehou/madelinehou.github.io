@@ -147,8 +147,8 @@ let themeBeforeAscii = null;
 
 async function enterAsciiTheme() {
   const [{ createAsciiObject }, { TART_SCENE, createTartSpin, animateWhileVisible }] = await Promise.all([
-    import("./ascii-object.js"),
-    import("./tart.js"),
+    import("./canvasui-ascii-object.js"),
+    import("./tart-shared.js"),
   ]);
   // Put the resting tilt in the camera rather than the model. Tilting the glossy
   // model toward ASCII Object's fixed studio lights washes the custard out in white.
@@ -171,7 +171,7 @@ async function enterAsciiTheme() {
     cameraDistance: Math.hypot(...TART_SCENE.cameraPosition),
     cameraDirection: [0, Math.sin(elevation), Math.cos(elevation)],
     yOffset: -0.3, // cancels ASCII Object's built-in lift so the tart spins in place
-    // Spin and bob come from tart.js, not ASCII Object's orbit camera and float
+    // Spin and bob come from tart-shared.js, not ASCII Object's orbit camera and float
     orbit: false,
     rotationIntensity: 0,
     floatIntensity: 0,

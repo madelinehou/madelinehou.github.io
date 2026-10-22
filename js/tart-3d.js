@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { TART_SCENE, createTartSpin, animateWhileVisible } from "./tart.js";
+import { TART_SCENE, createTartSpin, animateWhileVisible } from "./tart-shared.js";
 
 // ================================
 // SCENE SETUP
