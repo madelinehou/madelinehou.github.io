@@ -1,0 +1,25 @@
+# Madeline Hou
+
+> Full-stack product engineer in Sacramento, CA. I turn messy operational work into clear specs and software people rely on.
+
+Open to product engineering roles. Reach me through [LinkedIn](https://www.linkedin.com/in/madeline-hou/).
+
+This site is a personal homepage: a 3D egg tart you can spin, my name, and links. The details below are the useful part for anyone looking me up.
+
+## About
+
+- Full-stack engineer with about 4.5 years of experience, most recently at Gemini Legal (2022 to 2026), building legal workflow automation and modernizing legacy systems.
+- I work across product and engineering: I figure out how a system really works, including the code, the users, and the rules, before changing it.
+- I moved into engineering from economics and operations (B.A. Economics, UC Riverside).
+- Stack: TypeScript, React, Next.js, Ruby on Rails, PostgreSQL, GraphQL, and AWS.
+
+## Talks
+
+- Adobe ColdFusion Summit 2026: "Modern Frontends with React: An Incremental Path for ColdFusion Teams"
+- Sacramento JavaScript Meetup, June 2026: "Underused JavaScript Features + Strangler Fig Migrations"
+- Sacramento JavaScript Meetup, August 2024: "Design Decisions in Web Application Development"
+
+## Links
+
+- [LinkedIn](https://www.linkedin.com/in/madeline-hou/): work history and contact
+- [GitHub](https://github.com/madelinehou): code
