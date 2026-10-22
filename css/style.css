@@ -113,6 +113,17 @@
   transform: scale(1);
 }
 
+/* Text for crawlers and screen readers only, like the "o" in Hou that's drawn as an icon */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 ::selection {
   background-color: var(--color-accent);
   color: #fff;

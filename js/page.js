@@ -69,7 +69,6 @@ function showSpinnerFrame(index) {
   asciiSpinner.textContent = glyph;
   asciiSpinner.style.fontSize = `${size * 1.1}em`;
 }
-showSpinnerFrame(spinnerRest);
 
 function startSpinner() {
   if (!asciiTart || spinnerTimer) return;
@@ -86,7 +85,7 @@ function stopSpinner() {
   spinnerTimer = null;
   spinnerFrame = spinnerRest;
   spinnerStep = 1;
-  showSpinnerFrame(spinnerRest);
+  if (asciiTart) showSpinnerFrame(spinnerRest);
 }
 
 themeToggle.addEventListener("mouseenter", startSpinner);
@@ -156,6 +155,7 @@ async function enterAsciiTheme() {
   const elevation = Math.atan2(camY, camZ) + TART_SCENE.tilt;
   themeBeforeAscii = html.getAttribute("data-theme");
   html.setAttribute("data-theme", "ascii");
+  showSpinnerFrame(spinnerRest);
   syncIcon();
   asciiCanvas.hidden = false;
   tartCanvas.hidden = true;
@@ -188,6 +188,7 @@ async function enterAsciiTheme() {
 
 function exitAsciiTheme() {
   stopSpinner();
+  asciiSpinner.textContent = ""; // keep the glyph out of the page text, which reads "Madeline Hou"
   stopAsciiLoop();
   asciiSpin.destroy();
   asciiSpin = null;
