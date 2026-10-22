@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { TART_SCENE, createTartSpin, animateWhileVisible } from "./tart-shared.js";
+import { TART_SCENE, cameraDistanceFor, createTartSpin, animateWhileVisible } from "./tart-shared.js";
 
 // ================================
 // SCENE SETUP
@@ -12,19 +12,12 @@ const renderer = new THREE.WebGLRenderer({
   antialias: true,
   alpha: true,
 });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.0;
 
 const scene = new THREE.Scene();
 
-const camera = new THREE.PerspectiveCamera(
-  TART_SCENE.fov,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  100
-);
+const camera = new THREE.PerspectiveCamera(TART_SCENE.fov, 1, 0.1, 100);
 camera.position.fromArray(TART_SCENE.cameraPosition);
 camera.lookAt(0, 0, 0);
 
@@ -51,6 +44,13 @@ scene.add(rimLight);
 // LOAD EGG TART MODEL
 // ================================
 
+// First-load intro: page.js listens for "tart:ready" (the first frame with the
+// model in it), and the tart spins into its resting angle
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+const intro = { yaw: reducedMotion.matches ? 0 : -0.6 }; // radians
+let modelReady = false;
+let announcedReady = false;
+
 const tartGroup = new THREE.Group();
 scene.add(tartGroup);
 
@@ -70,6 +70,7 @@ loader.load(
     model.scale.setScalar(TART_SCENE.size / maxDim);
 
     tartGroup.add(model);
+    modelReady = true;
   },
   undefined,
   (error) => {
@@ -98,13 +99,20 @@ const spin = createTartSpin({ canvas, hits: hitsEggTart });
 // RESIZE
 // ================================
 
+// Size to the canvas's CSS box (the hero), not the window, like the ASCII tart.
+// On phones the hero and the window differ while the address bar shows, and
+// sizing to the window made the two tarts render at different sizes.
 function onResize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
+  const { clientWidth, clientHeight } = canvas;
+  if (!clientWidth || !clientHeight) return; // hidden while another tart shows
+  camera.aspect = clientWidth / clientHeight;
   camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  camera.position.setLength(cameraDistanceFor(camera.aspect));
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(clientWidth, clientHeight, false);
 }
-window.addEventListener("resize", onResize);
+onResize();
+new ResizeObserver(onResize).observe(canvas);
 
 // ================================
 // ANIMATION LOOP
@@ -112,7 +120,12 @@ window.addEventListener("resize", onResize);
 
 animateWhileVisible(canvas, () => {
   const { x, y, bob } = spin.step();
-  tartGroup.rotation.set(x, y, 0);
+  tartGroup.rotation.set(x, y + intro.yaw, 0);
   tartGroup.position.y = bob;
   renderer.render(scene, camera);
+  if (modelReady && !announcedReady) {
+    announcedReady = true;
+    gsap.to(intro, { yaw: 0, duration: 0.7, ease: "expo.out" });
+    document.dispatchEvent(new CustomEvent("tart:ready"));
+  }
 });

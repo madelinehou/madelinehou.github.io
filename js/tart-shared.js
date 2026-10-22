@@ -9,7 +9,18 @@ export const TART_SCENE = {
   size: 2, // longest side of the model, in scene units
   bobHeight: 0.08, // scene units
   bobSpeed: 1, // radians per second
+  maxWidthShare: 0.75, // on narrow screens, the most of the screen's width the tart may span
 };
+
+// The field of view is vertical, so on narrow (portrait) screens the tart
+// would run off the sides. Keep the usual distance on wider screens, and back
+// the camera away on narrow ones until the tart fits.
+export function cameraDistanceFor(aspect) {
+  const base = Math.hypot(...TART_SCENE.cameraPosition);
+  const halfHeight = Math.tan(((TART_SCENE.fov / 2) * Math.PI) / 180);
+  const fit = TART_SCENE.size / (2 * halfHeight * aspect * TART_SCENE.maxWidthShare);
+  return Math.max(base, fit);
+}
 
 // Drag-to-spin physics: a flick keeps spinning and slows down, the tilt
 // springs back, and the tart never stops a gentle idle spin. With reduced
@@ -20,8 +31,9 @@ const TILT_SPRING = 0.02;
 
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-// One pose for both tarts. Only the visible tart's loop calls step().
+// One pose for both tarts, advanced at most once per frame
 const pose = { x: TART_SCENE.tilt, y: 0, bob: 0 };
+let lastStepTime = null;
 let velocityX = 0;
 let velocityY = 0.005;
 
@@ -88,6 +100,11 @@ export function createTartSpin({ canvas, hits }) {
   return {
     // Advance one frame and return the shared pose: rotation x and y, and the bob offset
     step() {
+      // During the Code Blue dissolve both tarts render, so only advance once per frame
+      const frameTime = document.timeline.currentTime;
+      if (frameTime === lastStepTime) return pose;
+      lastStepTime = frameTime;
+
       pose.y += velocityY;
       pose.x += velocityX;
 

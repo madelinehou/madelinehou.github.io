@@ -1,44 +1,78 @@
+/* Theme tokens: Parchment palette. Registered with @property so they
+   interpolate; the body gradient repaints from them on every frame. */
+@property --color-bg         { syntax: "<color>"; inherits: true; initial-value: #f2e7d7; }
+@property --color-hero-top   { syntax: "<color>"; inherits: true; initial-value: #edddcb; }
+@property --color-text       { syntax: "<color>"; inherits: true; initial-value: #2e2116; }
+@property --color-text-muted { syntax: "<color>"; inherits: true; initial-value: #6d5d4f; }
+@property --color-accent     { syntax: "<color>"; inherits: true; initial-value: #ad411c; }
+@property --color-sel-fg     { syntax: "<color>"; inherits: true; initial-value: #ffffff; }
+
+/* Light. Hero-top is a touch deeper than bg, so a phone's top edge never reads white.
+   Contrast (worst of bg / hero-top): text 11.8, muted 4.8, accent 4.8, selection 5.9 */
 :root {
-  --color-bg: #f5ebe0;
-  --color-hero-top: #f0e6d8;
-  --color-text: #2c2418;
-  --color-text-muted: #8a7e72;
-  --color-accent: oklch(68% 0.18 35);
+  --color-bg: #f2e7d7;         /* oklch(93.2% .024 76) */
+  --color-hero-top: #edddcb;   /* oklch(90.6% .030 72) */
+  --color-text: #2e2116;       /* oklch(26% .028 58) */
+  --color-text-muted: #6d5d4f; /* oklch(49% .030 62) */
+  --color-accent: #ad411c;     /* oklch(52% .15 38) */
+  --color-sel-fg: #ffffff;
 }
 
+/* Dark. Text 14.1, muted 5.2, accent 7.1, selection 7.1 */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: #1a1208;
-    --color-hero-top: #1a1510;
-    --color-text: #e8e8e8;
-    --color-text-muted: #999;
-    --color-accent: oklch(72% 0.18 35);
+  :root:not([data-theme="light"]) {
+    --color-bg: #150e08;         /* oklch(17% .016 60) */
+    --color-hero-top: #201710;   /* oklch(21.5% .020 62) */
+    --color-text: #ede5d9;       /* oklch(92.5% .018 78) */
+    --color-text-muted: #968a7c; /* oklch(64% .025 70) */
+    --color-accent: #e88253;     /* oklch(71% .14 45) */
+    --color-sel-fg: #150e08;
   }
 }
 
 [data-theme="light"] {
-  --color-bg: #f5ebe0;
-  --color-hero-top: #f0e6d8;
-  --color-text: #2c2418;
-  --color-text-muted: #8a7e72;
-  --color-accent: oklch(68% 0.18 35);
+  --color-bg: #f2e7d7;
+  --color-hero-top: #edddcb;
+  --color-text: #2e2116;
+  --color-text-muted: #6d5d4f;
+  --color-accent: #ad411c;
+  --color-sel-fg: #ffffff;
 }
 
 [data-theme="dark"] {
-  --color-bg: #1a1208;
-  --color-hero-top: #1a1510;
-  --color-text: #e8e8e8;
-  --color-text-muted: #999;
-  --color-accent: oklch(72% 0.18 35);
+  --color-bg: #150e08;
+  --color-hero-top: #201710;
+  --color-text: #ede5d9;
+  --color-text-muted: #968a7c;
+  --color-accent: #e88253;
+  --color-sel-fg: #150e08;
 }
 
-/* ASCII theme: a cool terminal-like dark mode, set by the ASCII command */
+/* ASCII theme (Code Blue): the dark ladder at hue ~240.
+   Text 14.1, muted 5.2, accent 8.5, selection 8.5 */
 [data-theme="ascii"] {
-  --color-bg: #0b1016;
-  --color-hero-top: #0e151d;
-  --color-text: #cfe0f0;
-  --color-text-muted: #6f8294;
-  --color-accent: oklch(70% 0.13 235);
+  --color-bg: #081018;         /* oklch(17% .020 245) */
+  --color-hero-top: #0f1b24;   /* oklch(21.5% .024 242) */
+  --color-text: #d8e9f5;       /* oklch(92.5% .024 238) */
+  --color-text-muted: #798fa0; /* oklch(64% .035 240) */
+  --color-accent: #4eb8e9;     /* oklch(74% .12 232) */
+  --color-sel-fg: #081018;
+}
+
+/* Theme changes tween the tokens themselves */
+:root {
+  --theme-dur: 420ms;
+  --ease-standard: cubic-bezier(.4, 0, .2, 1);
+  --ease-in: cubic-bezier(.4, 0, 1, 1);
+  --ease-out-quint: cubic-bezier(.22, 1, .36, 1);
+  --ease-settle: cubic-bezier(.34, 1.36, .64, 1);
+  transition:
+    --color-bg var(--theme-dur) var(--ease-standard),
+    --color-hero-top var(--theme-dur) var(--ease-standard),
+    --color-text var(--theme-dur) var(--ease-standard),
+    --color-text-muted var(--theme-dur) var(--ease-standard),
+    --color-accent var(--theme-dur) var(--ease-standard),
+    --color-sel-fg var(--theme-dur) var(--ease-standard);
 }
 
 /* ================================
@@ -126,7 +160,7 @@
 
 ::selection {
   background-color: var(--color-accent);
-  color: #fff;
+  color: var(--color-sel-fg);
 }
 
 * {
@@ -137,6 +171,9 @@
 
 html {
   scroll-behavior: smooth;
+  /* No sideways scroll or bounce on phones; the page only scrolls vertically */
+  overflow-x: clip;
+  overscroll-behavior-x: none;
 }
 
 body {
@@ -146,7 +183,6 @@ body {
   background: linear-gradient(180deg, var(--color-hero-top) 0%, var(--color-bg) 100vh) no-repeat, var(--color-bg);
   line-height: 1.6;
   overflow-x: hidden;
-  transition: color 0.4s ease, background 0.4s ease;
 }
 
 .container {
@@ -162,11 +198,14 @@ body {
 .hero {
   position: relative;
   height: 100vh;
+  height: 100svh; /* the visible height on phones, so the tart centers in what's on screen */
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   background: transparent;
+  /* Swipes on the hero only scroll the page vertically; sideways drags go to the tart */
+  touch-action: pan-y;
 }
 
 #egg-tart-canvas,
@@ -187,7 +226,7 @@ body {
   position: absolute;
   bottom: 6rem;
   left: 50%;
-  transform: translateX(-50%);
+  /* centered by GSAP (xPercent: -50) so its y tweens do not fight a CSS transform */
   font-size: 0.75rem;
   font-weight: 300;
   letter-spacing: 0.2em;
@@ -202,7 +241,7 @@ body {
   position: absolute;
   bottom: 2rem;
   left: 50%;
-  transform: translateX(-50%);
+  /* centered by GSAP (xPercent: -50) so its y tweens do not fight a CSS transform */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -294,6 +333,76 @@ body {
   color: var(--color-text-muted);
   font-weight: 300;
   font-size: 1.2rem;
+}
+
+/* ================================
+   CODE BLUE: SOFT DISSOLVE
+   page.js adds .cb-dissolve-in / -out with both canvases visible, waits
+   for these animations, then hides the outgoing canvas. In 480ms, out 420ms.
+   ================================ */
+
+.cb-dissolve-in #egg-tart-canvas  { animation: cb-blur-out 240ms var(--ease-in) both; }
+.cb-dissolve-in #ascii-canvas     { animation: cb-blur-in 300ms var(--ease-out-quint) 180ms both; }
+.cb-dissolve-out #ascii-canvas    { animation: cb-blur-out 200ms var(--ease-in) both; }
+.cb-dissolve-out #egg-tart-canvas { animation: cb-blur-in 280ms var(--ease-out-quint) 140ms both; }
+.cb-dissolve-in { --theme-dur: 480ms; }
+
+@keyframes cb-blur-out {
+  from { opacity: 1; filter: blur(0); transform: scale(1); }
+  to   { opacity: 0; filter: blur(8px); transform: scale(0.97); }
+}
+@keyframes cb-blur-in {
+  from { opacity: 0; filter: blur(8px); transform: scale(1.03); }
+  to   { opacity: 1; filter: blur(0); transform: scale(1); }
+}
+
+/* ================================
+   FIRST-LOAD INTRO
+   t=0 is the first frame with the model. The canvas fades in over 240ms and
+   lifts and settles over 560ms. tart-3d.js adds a 700ms spin-settle; page.js
+   staggers the hints at 220, 320 and 420ms.
+   ================================ */
+
+#egg-tart-canvas { opacity: 0; }
+.tart-ready:not(.intro-done) #egg-tart-canvas {
+  animation: intro-fade 240ms var(--ease-out-quint) both,
+             intro-settle 560ms var(--ease-settle) both;
+}
+.intro-done #egg-tart-canvas { opacity: 1; }
+
+.tart-shadow {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + 15vh);
+  width: 34vh;
+  height: 4vh;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(-50%);
+  background: radial-gradient(closest-side, rgb(20 12 4 / 0.16), transparent); /* fades into dark bgs by design */
+}
+.tart-ready .tart-shadow { animation: intro-shadow 520ms var(--ease-out-quint) both; }
+[data-theme="ascii"] .tart-shadow { opacity: 0 !important; animation: none; }
+
+@keyframes intro-fade   { from { opacity: 0; } to { opacity: 1; } }
+@keyframes intro-settle { from { transform: translateY(16px) scale(0.94); } to { transform: none; } }
+@keyframes intro-shadow {
+  from { opacity: 0; transform: translateX(-50%) scaleX(0.7); }
+  to   { opacity: 1; transform: translateX(-50%) scaleX(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --theme-dur: 200ms; }
+  .tart-ready:not(.intro-done) #egg-tart-canvas,
+  .tart-ready .tart-shadow { animation: intro-fade 200ms linear both; }
+  @keyframes cb-blur-out { from { opacity: 1; } to { opacity: 0; } }
+  @keyframes cb-blur-in  { from { opacity: 0; } to { opacity: 1; } }
+  .cb-dissolve-in #egg-tart-canvas, .cb-dissolve-in #ascii-canvas,
+  .cb-dissolve-out #egg-tart-canvas, .cb-dissolve-out #ascii-canvas {
+    animation-duration: 200ms;
+    animation-delay: 0ms;
+  }
 }
 
 /* ================================

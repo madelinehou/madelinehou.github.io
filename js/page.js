@@ -18,13 +18,24 @@ function isDarkTheme() {
   return theme === "dark" || theme === "ascii" || (!theme && window.matchMedia("(prefers-color-scheme: dark)").matches);
 }
 
+// Phone browser chrome (the area around the page) follows the active theme
+const THEME_TOP = { light: "#edddcb", dark: "#201710", ascii: "#0f1b24" };
+const themeColorMetas = document.querySelectorAll('meta[name="theme-color"]');
+function syncThemeColor() {
+  const theme = html.getAttribute("data-theme") ||
+    (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  themeColorMetas.forEach((meta) => (meta.content = THEME_TOP[theme]));
+}
+
 function syncIcon() {
+  syncThemeColor();
   themeToggle.classList.toggle("is-sun", isDarkTheme());
   themeToggle.classList.toggle("is-ascii", html.getAttribute("data-theme") === "ascii");
 }
 syncIcon();
 
 function toggleTheme() {
+  if (cbBusy) return; // mid Code Blue transition
   // From the ASCII theme, the toggle returns to the theme it replaced
   if (asciiTart) {
     exitAsciiTheme();
@@ -142,10 +153,38 @@ const asciiCanvas = document.getElementById("ascii-canvas");
 let asciiTart = null;
 let asciiSpin = null;
 let stopAsciiLoop = null;
+let asciiResize = null;
 let themeBeforeAscii = null;
 
+let cbBusy = false; // ignore Code Blue toggles while a transition runs
+
+function animationsDone(...els) {
+  return new Promise((resolve) =>
+    requestAnimationFrame(() =>
+      Promise.all(els.flatMap((el) => el.getAnimations()).map((a) => a.finished.catch(() => {}))).then(resolve)
+    )
+  );
+}
+
+// Soft dissolve between the 3D and ASCII tarts (keyframes in style.css).
+// dir is "in" or "out"; applyTheme() flips data-theme and the icon.
+async function dissolveCodeBlue(dir, applyTheme) {
+  const incoming = dir === "in" ? asciiCanvas : tartCanvas;
+  const outgoing = dir === "in" ? tartCanvas : asciiCanvas;
+  const cls = `cb-dissolve-${dir}`;
+  html.classList.add(cls); // keyframes take over both canvases…
+  incoming.hidden = false;
+  incoming.style.opacity = ""; // …so dropping the pre-load opacity can't flash
+  applyTheme(); // the tokens tween through @property
+  await animationsDone(incoming, outgoing);
+  outgoing.hidden = true;
+  html.classList.remove(cls);
+}
+
 async function enterAsciiTheme() {
-  const [{ createAsciiObject }, { TART_SCENE, createTartSpin, animateWhileVisible }] = await Promise.all([
+  if (cbBusy) return;
+  cbBusy = true;
+  const [{ createAsciiObject }, { TART_SCENE, cameraDistanceFor, createTartSpin, animateWhileVisible }] = await Promise.all([
     import("./canvasui-ascii-object.js"),
     import("./tart-shared.js"),
   ]);
@@ -154,11 +193,14 @@ async function enterAsciiTheme() {
   const [, camY, camZ] = TART_SCENE.cameraPosition;
   const elevation = Math.atan2(camY, camZ) + TART_SCENE.tilt;
   themeBeforeAscii = html.getAttribute("data-theme");
-  html.setAttribute("data-theme", "ascii");
-  showSpinnerFrame(spinnerRest);
-  syncIcon();
+
+  // Mount the ASCII canvas invisibly and wait for its model, so the dissolve
+  // never fades into an empty canvas
+  asciiCanvas.style.opacity = "0";
   asciiCanvas.hidden = false;
-  tartCanvas.hidden = true;
+  let markLoaded;
+  const loaded = new Promise((resolve) => (markLoaded = resolve));
+
   asciiTart = createAsciiObject({ canvas: asciiCanvas }, {
     src: "static/egg-tart.glb",
     edgeContrast: 2.5,
@@ -168,37 +210,58 @@ async function enterAsciiTheme() {
     // Same framing as the 3D tart
     fov: TART_SCENE.fov,
     scale: TART_SCENE.size,
-    cameraDistance: Math.hypot(...TART_SCENE.cameraPosition),
+    cameraDistance: cameraDistanceFor(asciiCanvas.clientWidth / asciiCanvas.clientHeight),
     cameraDirection: [0, Math.sin(elevation), Math.cos(elevation)],
     yOffset: -0.3, // cancels ASCII Object's built-in lift so the tart spins in place
     // Spin and bob come from tart-shared.js, not ASCII Object's orbit camera and float
     orbit: false,
     rotationIntensity: 0,
     floatIntensity: 0,
+    onLoad: () => markLoaded(),
+    onError: () => markLoaded(), // never strand the page mid-switch
   });
 
   // OrbitControls sets touch-action: none, which would block scrolling past the hero on phones
   asciiCanvas.style.touchAction = "";
+  // Keep the same narrow-screen camera distance as the 3D tart when the hero resizes
+  asciiResize = new ResizeObserver(() => {
+    const { clientWidth, clientHeight } = asciiCanvas;
+    if (clientWidth && clientHeight) asciiTart.setOptions({ cameraDistance: cameraDistanceFor(clientWidth / clientHeight) });
+  });
+  asciiResize.observe(asciiCanvas);
   asciiSpin = createTartSpin({ canvas: asciiCanvas, hits: asciiTart.hitTest });
   stopAsciiLoop = animateWhileVisible(asciiCanvas, () => {
     const { x, y, bob } = asciiSpin.step();
     asciiTart.setModelPose(x - TART_SCENE.tilt, y, bob); // the camera already holds the tilt
   });
+
+  await loaded;
+  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))); // first ASCII frame painted
+  await dissolveCodeBlue("in", () => {
+    html.setAttribute("data-theme", "ascii");
+    showSpinnerFrame(spinnerRest);
+    syncIcon();
+  });
+  cbBusy = false;
 }
 
-function exitAsciiTheme() {
+async function exitAsciiTheme() {
+  if (cbBusy) return;
+  cbBusy = true;
   stopSpinner();
   asciiSpinner.textContent = ""; // keep the glyph out of the page text, which reads "Madeline Hou"
+  await dissolveCodeBlue("out", () => {
+    if (themeBeforeAscii) html.setAttribute("data-theme", themeBeforeAscii);
+    else html.removeAttribute("data-theme");
+    syncIcon();
+  });
   stopAsciiLoop();
+  asciiResize.disconnect();
   asciiSpin.destroy();
   asciiSpin = null;
   asciiTart.destroy();
   asciiTart = null;
-  asciiCanvas.hidden = true;
-  tartCanvas.hidden = false;
-  if (themeBeforeAscii) html.setAttribute("data-theme", themeBeforeAscii);
-  else html.removeAttribute("data-theme");
-  syncIcon();
+  cbBusy = false;
 }
 
 const commands = [
@@ -360,7 +423,6 @@ cmdBarOverlay.addEventListener("click", closeCmdBar);
 // Trigger button
 const cmdTrigger = document.getElementById("cmd-trigger");
 cmdTrigger.addEventListener("click", openCmdBar);
-gsap.to(cmdTrigger, { opacity: 1, delay: 2, duration: 0.6, onStart: () => cmdTrigger.classList.add("revealed") });
 
 // ================================
 // HERO HINT + SCROLL INDICATOR
@@ -369,24 +431,25 @@ gsap.to(cmdTrigger, { opacity: 1, delay: 2, duration: 0.6, onStart: () => cmdTri
 const heroHint = document.querySelector(".hero-hint");
 const scrollIndicator = document.querySelector(".scroll-indicator");
 
-// Show "drag to spin" hint after a brief delay, then fade it out
-gsap.to(heroHint, {
-  opacity: 1,
-  delay: 1.5,
-  duration: 0.8,
-  ease: "power1.out",
-  onComplete: () => {
-    gsap.to(heroHint, { opacity: 0, delay: 3, duration: 1 });
-  },
-});
+// Centered with xPercent (not a CSS transform) so the y tweens below don't fight it
+gsap.set([heroHint, scrollIndicator], { xPercent: -50 });
 
-// Show scroll indicator
-gsap.to(scrollIndicator, {
-  opacity: 1,
-  delay: 2,
-  duration: 0.8,
-  ease: "power1.out",
-});
+// First-load intro, once the tart's first frame is on screen: the canvas
+// fades and settles (style.css), then the hints follow
+function playIntro() {
+  if (html.classList.contains("tart-ready")) return;
+  html.classList.add("tart-ready");
+  animationsDone(tartCanvas).then(() => html.classList.add("intro-done"));
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const lift = reduce ? 0 : 6;
+  gsap.timeline({ defaults: { ease: "quint.out", duration: reduce ? 0.2 : 0.3 } })
+    .fromTo(heroHint, { opacity: 0, y: lift }, { opacity: 1, y: 0 }, 0.22)
+    .fromTo(scrollIndicator, { opacity: 0, y: lift }, { opacity: 1, y: 0 }, 0.32)
+    .to(cmdTrigger, { opacity: 1, onStart: () => cmdTrigger.classList.add("revealed") }, 0.42)
+    .to(heroHint, { opacity: 0, duration: 1, ease: "power1.inOut" }, 3.5);
+}
+document.addEventListener("tart:ready", playIntro, { once: true });
+setTimeout(playIntro, 4000); // model failed or the network is very slow: show the page anyway
 
 // Fade out scroll indicator when scrolling away from hero
 ScrollTrigger.create({
@@ -404,20 +467,20 @@ ScrollTrigger.create({
 gsap.to(".info-name", {
   opacity: 1,
   y: 0,
-  duration: 0.8,
-  ease: "power2.out",
+  duration: 0.52,
+  ease: "quint.out",
   scrollTrigger: {
     trigger: ".info",
-    start: "top 75%",
+    start: "top 85%",
   },
 });
 
 gsap.to(".info-links", {
   opacity: 1,
   y: 0,
-  duration: 0.8,
-  delay: 0.3,
-  ease: "power2.out",
+  duration: 0.52,
+  delay: 0.12,
+  ease: "quint.out",
   scrollTrigger: {
     trigger: ".info",
     start: "top 75%",
