@@ -166,12 +166,13 @@ function animationsDone(...els) {
   );
 }
 
-// Soft dissolve between the 3D and ASCII tarts (keyframes in style.css).
-// dir is "in" or "out"; applyTheme() flips data-theme and the icon.
-async function dissolveCodeBlue(dir, applyTheme) {
+// Soft dissolve between the 3D and ASCII tarts (keyframes and transitions in style.css).
+// dir is "in" or "out"; applyTheme() flips data-theme and the icon, if not already done.
+async function dissolveCodeBlue(dir, applyTheme = () => {}) {
   const incoming = dir === "in" ? asciiCanvas : tartCanvas;
   const outgoing = dir === "in" ? tartCanvas : asciiCanvas;
   const cls = `cb-dissolve-${dir}`;
+  html.classList.remove("cb-loading"); // the 3D tart carries on from its dimmed loading state
   html.classList.add(cls); // keyframes take over both canvases…
   incoming.hidden = false;
   incoming.style.opacity = ""; // …so dropping the pre-load opacity can't flash
@@ -181,9 +182,26 @@ async function dissolveCodeBlue(dir, applyTheme) {
   html.classList.remove(cls);
 }
 
+function applyAsciiTheme() {
+  html.setAttribute("data-theme", "ascii");
+  showSpinnerFrame(spinnerRest);
+  syncIcon();
+}
+
+// Start downloading the ASCII code before it's needed; opening the command bar is the cue
+function prefetchAscii() {
+  import("./canvasui-ascii-object.js").catch(() => {});
+}
+
 async function enterAsciiTheme() {
   if (cbBusy) return;
   cbBusy = true;
+  // Respond right away: the colors shift and the 3D tart dims and blurs while
+  // the ASCII tart loads, which takes up to a second on phones
+  themeBeforeAscii = html.getAttribute("data-theme");
+  html.classList.add("cb-loading");
+  applyAsciiTheme();
+
   const [{ createAsciiObject }, { TART_SCENE, cameraDistanceFor, createTartSpin, animateWhileVisible }] = await Promise.all([
     import("./canvasui-ascii-object.js"),
     import("./tart-shared.js"),
@@ -192,7 +210,6 @@ async function enterAsciiTheme() {
   // model toward ASCII Object's fixed studio lights washes the custard out in white.
   const [, camY, camZ] = TART_SCENE.cameraPosition;
   const elevation = Math.atan2(camY, camZ) + TART_SCENE.tilt;
-  themeBeforeAscii = html.getAttribute("data-theme");
 
   // Mount the ASCII canvas invisibly and wait for its model, so the dissolve
   // never fades into an empty canvas
@@ -237,11 +254,7 @@ async function enterAsciiTheme() {
 
   await loaded;
   await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))); // first ASCII frame painted
-  await dissolveCodeBlue("in", () => {
-    html.setAttribute("data-theme", "ascii");
-    showSpinnerFrame(spinnerRest);
-    syncIcon();
-  });
+  await dissolveCodeBlue("in");
   cbBusy = false;
 }
 
@@ -350,6 +363,7 @@ function setActive(index) {
 }
 
 function openCmdBar() {
+  prefetchAscii();
   cmdBarOverlay.classList.add("visible");
   cmdBar.classList.add("visible");
   cmdBarInput.value = "";

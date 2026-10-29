@@ -30,7 +30,11 @@
   }
 }
 
-[data-theme="light"] {
+/* :root[data-theme=…] matches the specificity of the dark media rule above
+   (:root:not([data-theme="light"])), so an explicit theme always wins.
+   With plain [data-theme=…], phones in system dark mode got the dark palette
+   in Code Blue. */
+:root[data-theme="light"] {
   --color-bg: #f2e7d7;
   --color-hero-top: #edddcb;
   --color-text: #2e2116;
@@ -39,7 +43,7 @@
   --color-sel-fg: #ffffff;
 }
 
-[data-theme="dark"] {
+:root[data-theme="dark"] {
   --color-bg: #150e08;
   --color-hero-top: #201710;
   --color-text: #ede5d9;
@@ -50,8 +54,8 @@
 
 /* ASCII theme (Code Blue): the dark ladder at hue ~240.
    Text 14.1, muted 5.2, accent 8.5, selection 8.5 */
-[data-theme="ascii"] {
-  --color-bg: #081018;         /* oklch(17% .020 245) */
+:root[data-theme="ascii"] {
+  --color-bg: #081018;        /* oklch(17% .020 245) */
   --color-hero-top: #0f1b24;   /* oklch(21.5% .024 242) */
   --color-text: #d8e9f5;       /* oklch(92.5% .024 238) */
   --color-text-muted: #798fa0; /* oklch(64% .035 240) */
@@ -145,6 +149,7 @@
 .theme-o.is-ascii .icon-ascii {
   opacity: 1;
   transform: scale(1);
+  color: var(--color-accent); /* the blue star in Code Blue */
 }
 
 /* Text for crawlers and screen readers only, like the "o" in Hou that's drawn as an icon */
@@ -339,13 +344,15 @@ body {
    CODE BLUE: SOFT DISSOLVE
    page.js adds .cb-dissolve-in / -out with both canvases visible, waits
    for these animations, then hides the outgoing canvas. In 480ms, out 420ms.
+   Entering also has a .cb-loading step first: the theme and the 3D tart's
+   dim-and-blur start the moment Code Blue is picked, while the ASCII tart
+   loads (up to ~1s on phones); see the transitions after the intro below.
    ================================ */
 
-.cb-dissolve-in #egg-tart-canvas  { animation: cb-blur-out 240ms var(--ease-in) both; }
 .cb-dissolve-in #ascii-canvas     { animation: cb-blur-in 300ms var(--ease-out-quint) 180ms both; }
 .cb-dissolve-out #ascii-canvas    { animation: cb-blur-out 200ms var(--ease-in) both; }
 .cb-dissolve-out #egg-tart-canvas { animation: cb-blur-in 280ms var(--ease-out-quint) 140ms both; }
-.cb-dissolve-in { --theme-dur: 480ms; }
+.cb-loading, .cb-dissolve-in { --theme-dur: 480ms; }
 
 @keyframes cb-blur-out {
   from { opacity: 1; filter: blur(0); transform: scale(1); }
@@ -369,6 +376,15 @@ body {
              intro-settle 560ms var(--ease-settle) both;
 }
 .intro-done #egg-tart-canvas { opacity: 1; }
+
+/* Entering Code Blue, the 3D tart leaves by transition rather than keyframes,
+   so it can hold a dimmed, blurred state while the ASCII tart loads and then
+   carry on from there without a jump. These follow .intro-done to win over it. */
+#egg-tart-canvas {
+  transition: opacity 240ms var(--ease-in), filter 240ms var(--ease-in), transform 240ms var(--ease-in);
+}
+.cb-loading #egg-tart-canvas      { opacity: 0.35; filter: blur(6px); transform: scale(0.98); }
+.cb-dissolve-in #egg-tart-canvas  { opacity: 0; filter: blur(8px); transform: scale(0.97); }
 
 .tart-shadow {
   position: absolute;
@@ -403,6 +419,8 @@ body {
     animation-duration: 200ms;
     animation-delay: 0ms;
   }
+  #egg-tart-canvas { transition: opacity 200ms linear; }
+  .cb-loading #egg-tart-canvas, .cb-dissolve-in #egg-tart-canvas { filter: none; transform: none; }
 }
 
 /* ================================
